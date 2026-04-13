@@ -3,57 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J108 ERP ｜ 園遊會預購訂單查詢系統</title>
+    <title>J108 ERP ｜ 庫存與退款管理版</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
-        :root { --deep-blue: #1a2a6c; --admin-red: #8e24aa; --paper: #fdfaf5; --ink: #3e2723; }
-        
+        :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --refund: #95a5a6; }
         body { font-family: "KaiTi", "標楷體", serif; background: var(--paper); color: var(--ink); margin: 0; }
         
-        /* 角色切換頁面 */
-        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 20px; text-align: center; }
-        .role-btn { padding: 20px 40px; font-size: 1.5rem; cursor: pointer; border-radius: 10px; border: 2px solid var(--ink); background: white; font-family: inherit; transition: 0.3s; }
-        .role-btn:hover { background: var(--ink); color: white; }
+        /* 角色選擇 */
+        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 20px; }
+        .role-btn { padding: 15px 30px; font-size: 1.2rem; cursor: pointer; border: 2px solid var(--ink); background: white; font-family: inherit; }
 
         /* 導覽列 */
-        nav { background: var(--ink); padding: 15px; display: none; justify-content: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
-        nav button { background: rgba(255,255,255,0.1); border: 1px solid white; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-family: inherit; }
-        nav button.active { background: white; color: var(--ink); }
+        nav { background: var(--ink); padding: 12px; display: none; justify-content: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
+        nav button { background: rgba(255,255,255,0.1); border: 1px solid white; color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; }
 
-        .container { max-width: 1000px; margin: 20px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: none; }
-        
-        /* 區塊樣式 */
-        .section { display: none; animation: fadeIn 0.5s; }
+        .container { max-width: 1100px; margin: 20px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; }
+        .section { display: none; }
         .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 15px; }
         th { background: var(--ink); color: white; padding: 10px; text-align: left; }
         td { padding: 10px; border-bottom: 1px solid #eee; }
 
-        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
-        .btn-main { background: var(--ink); color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px; font-family: inherit; }
-        
-        .veg-tag { background: #5d4037; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px; }
-        .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 13px; font-weight: bold; }
+        .stock-tag { color: #d35400; font-weight: bold; font-size: 12px; }
+        .status-refund { background: var(--refund); color: white; padding: 2px 5px; border-radius: 3px; }
+        .btn-main { background: var(--ink); color: white; padding: 10px 20px; border: none; cursor: pointer; font-family: inherit; width: 100%; }
     </style>
 </head>
 <body>
 
 <div id="role-select">
-    <h1 style="font-size: 3rem; margin-bottom: 10px;">J108 ERP 智慧系統</h1>
-    <p>請選擇您的身分進入系統</p>
-    <div style="display: flex; gap: 20px;">
-        <button class="role-btn" onclick="enterApp('buyer')">🛍️ 我要買東西 / 查訂單</button>
-        <button class="role-btn" onclick="checkAdminLogin()">⚙️ 管理員登入</button>
-    </div>
+    <h1 style="font-size: 2.5rem;">J108 ERP 智慧系統</h1>
+    <button class="role-btn" onclick="enterApp('buyer')">🛍️ 買家下單 / 查訂單</button>
+    <button class="role-btn" onclick="checkAdminLogin()">⚙️ 管理員登入</button>
 </div>
 
 <nav id="admin-nav">
-    <button onclick="showSection('admin-orders')" class="nav-btn">📋 訂單總管</button>
-    <button onclick="showSection('admin-products')" class="nav-btn">⚙️ 商品上架</button>
-    <button onclick="showSection('admin-users')" class="nav-btn">👤 管理帳號</button>
-    <button onclick="location.reload()" style="background: #c0392b;">🚪 登出</button>
+    <button onclick="showSection('admin-orders')">📋 訂單管理</button>
+    <button onclick="showSection('admin-products')">⚙️ 庫存設定</button>
+    <button onclick="showSection('admin-users')">👤 帳號管理</button>
+    <button onclick="location.reload()">🚪 登出</button>
 </nav>
 
 <div class="container" id="buyer-app">
@@ -64,19 +53,18 @@
             <input type="text" id="b-class" placeholder="班級">
             <input type="number" id="b-no" placeholder="座號">
         </div>
-        <input type="text" id="b-name" placeholder="您的姓名" style="width:100%; margin-bottom:15px;">
-        <div id="buyer-item-list" style="border:1px solid #eee; padding:10px; background:#fafafa; margin-bottom:15px;">載入商品中...</div>
-        <button class="btn-main" style="width:100%; font-size:1.2rem;" onclick="submitOrder()">確認提交訂單 🚀</button>
-        <hr>
-        <button class="btn-main" style="background:#795548;" onclick="showSection('buyer-lookup')">🔍 查詢我的訂單狀態</button>
+        <input type="text" id="b-name" placeholder="您的姓名" style="width:100%; padding:10px; margin-bottom:15px; box-sizing: border-box;">
+        <div id="buyer-item-list" style="border:1px solid #eee; padding:10px; background:#fafafa; margin-bottom:15px;">同步雲端庫存中...</div>
+        <button class="btn-main" onclick="submitOrder()">確認提交訂單 🚀</button>
+        <button class="btn-main" style="background:#795548; margin-top:10px;" onclick="showSection('buyer-lookup')">🔍 查詢我的訂單</button>
     </div>
 
     <div id="buyer-lookup" class="section">
         <h2>🔍 訂單狀態查詢</h2>
-        <input type="text" id="lookup-key" placeholder="輸入您的姓名或座號搜尋..." style="width:80%;" oninput="lookupOrder()">
-        <button class="btn-main" onclick="showSection('buyer-order-form')">返回下單</button>
+        <input type="text" id="lookup-key" placeholder="輸入姓名查詢..." style="width:70%; padding:10px;" oninput="lookupOrder()">
+        <button onclick="showSection('buyer-order-form')">返回</button>
         <table id="lookup-table">
-            <thead><tr><th>時間</th><th>內容</th><th>金額</th><th>付款</th><th>配送</th></tr></thead>
+            <thead><tr><th>內容</th><th>金額</th><th>付款</th><th>配送</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
@@ -84,38 +72,31 @@
 
 <div class="container" id="admin-app">
     <div id="admin-orders" class="section active">
-        <h2>📋 所有訂單管理 (蔬菜優先)</h2>
-        <input type="text" id="admin-search" placeholder="搜尋買家..." oninput="renderAdminOrders()" style="width:100%; margin-bottom:10px;">
-        <table>
-            <thead><tr><th>付款</th><th>配送</th><th>買家</th><th>內容</th><th>金額</th><th>管理</th></tr></thead>
+        <h2>📋 訂單與退款管理</h2>
+        <table style="font-size: 13px;">
+            <thead><tr><th>付款</th><th>配送</th><th>買家</th><th>內容</th><th>管理</th></tr></thead>
             <tbody id="admin-order-table"></tbody>
         </table>
     </div>
 
     <div id="admin-products" class="section">
-        <h2>⚙️ 商品上架</h2>
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <input type="text" id="p-name" placeholder="名稱" style="flex:2;">
-            <input type="number" id="p-price" placeholder="單價" style="flex:1;">
+        <h2>⚙️ 商品與庫存設定</h2>
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:10px; margin-bottom:15px;">
+            <input type="text" id="p-name" placeholder="商品名稱">
+            <input type="number" id="p-price" placeholder="單價">
+            <input type="number" id="p-stock" placeholder="庫存">
             <button class="btn-main" onclick="addProduct()">上架</button>
         </div>
         <table id="product-table">
-            <thead><tr><th>商品</th><th>單價</th><th>操作</th></tr></thead>
+            <thead><tr><th>商品</th><th>單價</th><th>剩餘庫存</th><th>操作</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
 
     <div id="admin-users" class="section">
-        <h2>👤 管理員帳號 (口令) 設定</h2>
-        <p>在此新增的管理口令，別人可用來登入管理員後台。</p>
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="new-admin-pass" placeholder="設定新管理口令">
-            <button class="btn-main" onclick="addAdmin()">新增口令</button>
-        </div>
-        <table id="admin-list-table">
-            <thead><tr><th>管理口令</th><th>操作</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <h2>👤 管理員口令</h2>
+        <div style="display:flex; gap:10px;"><input type="text" id="new-admin-pass"><button onclick="addAdmin()">新增</button></div>
+        <table id="admin-list-table"><tbody></tbody></table>
     </div>
 </div>
 
@@ -138,26 +119,16 @@
     const db = getDatabase(app);
     let products = [], orders = [], admins = [];
 
-    // --- 角色與權限邏輯 ---
     window.enterApp = (role) => {
         document.getElementById('role-select').style.display = 'none';
-        if(role === 'buyer') {
-            document.getElementById('buyer-app').style.display = 'block';
-        } else {
-            document.getElementById('admin-nav').style.display = 'flex';
-            document.getElementById('admin-app').style.display = 'block';
-        }
+        document.getElementById(role + '-app').style.display = 'block';
+        if(role === 'admin') document.getElementById('admin-nav').style.display = 'flex';
     };
 
     window.checkAdminLogin = () => {
-        const pass = prompt("請輸入管理員口令：");
-        if (!pass) return;
-        // 檢查口令是否存在於資料庫 (預設為 1234)
-        if (pass === "1234" || admins.some(a => a.pass === pass)) {
-            enterApp('admin');
-        } else {
-            alert("口令錯誤！");
-        }
+        const pass = prompt("管理口令：");
+        if (pass === "1234" || admins.some(a => a.pass === pass)) enterApp('admin');
+        else alert("錯誤");
     };
 
     window.showSection = (id) => {
@@ -165,7 +136,7 @@
         document.getElementById(id).classList.add('active');
     };
 
-    // --- 資料同步 ---
+    // 同步資料
     onValue(ref(db, 'products'), s => {
         products = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
         renderBuyerItems();
@@ -182,116 +153,109 @@
         renderAdminList();
     });
 
-    // --- 買家功能 ---
+    // 買家功能 (含庫存檢查)
     function renderBuyerItems() {
         document.getElementById('buyer-item-list').innerHTML = products.map((p, i) => `
-            <div style="display:flex; align-items:center; padding:5px; border-bottom:1px solid #eee;">
-                <input type="checkbox" class="b-check" data-id="${p.id}">
-                <div style="flex:1; margin-left:10px;">${p.name.includes('蔬菜') ? '<span class="veg-tag">優先</span>' : ''} <b>${p.name}</b> ($${p.price})</div>
-                <input type="number" class="b-qty" value="1" min="1" style="width:50px;">
+            <div style="display:flex; align-items:center; padding:8px; border-bottom:1px solid #eee;">
+                <input type="checkbox" class="b-check" data-id="${p.id}" ${p.stock <= 0 ? 'disabled' : ''}>
+                <div style="flex:1; margin-left:10px;">
+                    <b>${p.name}</b> ($${p.price}) 
+                    <span class="stock-tag">${p.stock > 0 ? '剩餘 '+p.stock : '已售完'}</span>
+                </div>
+                <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" style="width:45px;" ${p.stock <= 0 ? 'disabled' : ''}>
             </div>
-        `).join('') || "目前暫無商品";
+        `).join('');
     }
 
     window.submitOrder = () => {
         const name = document.getElementById('b-name').value;
         const details = [];
-        let total = 0, hasVeg = false;
-        
-        document.querySelectorAll('.b-check').forEach((ck, i) => {
-            if(ck.checked) {
-                const qty = document.querySelectorAll('.b-qty')[i].value;
-                details.push(`${products[i].name}x${qty}`);
-                total += products[i].price * qty;
-                if(products[i].name.includes('蔬菜')) hasVeg = true;
+        let total = 0, updates = {};
+
+        const checks = document.querySelectorAll('.b-check');
+        const qtys = document.querySelectorAll('.b-qty');
+
+        for(let i=0; i<checks.length; i++) {
+            if(checks[i].checked) {
+                const buyQty = parseInt(qtys[i].value);
+                const product = products[i];
+                if(buyQty > product.stock) {
+                    alert(`${product.name} 庫存不足！僅剩 ${product.stock} 個`);
+                    return;
+                }
+                details.push(`${product.name}x${buyQty}`);
+                total += product.price * buyQty;
+                // 準備扣庫存
+                updates[`products/${product.id}/stock`] = product.stock - buyQty;
             }
+        }
+
+        if(!name || details.length === 0) return alert("請填寫完整");
+
+        // 同時扣庫存與送訂單
+        update(ref(db), updates).then(() => {
+            push(ref(db, 'orders'), {
+                ts: new Date().toLocaleString(),
+                buyer: name,
+                info: `${document.getElementById('b-grade').value}-${document.getElementById('b-class').value}-${document.getElementById('b-no').value}`,
+                detail: details.join(", "),
+                total: total,
+                isPaid: false,
+                shipStatus: "待配送"
+            }).then(() => { alert("訂購成功！"); location.reload(); });
         });
-
-        if(!name || details.length === 0) return alert("請填寫姓名並勾選商品");
-
-        push(ref(db, 'orders'), {
-            ts: new Date().toLocaleString(),
-            buyer: name,
-            info: `${document.getElementById('b-grade').value}-${document.getElementById('b-class').value} / ${document.getElementById('b-no').value}號`,
-            detail: details.join(", "),
-            total: total,
-            isPaid: false,
-            shipStatus: "待配送",
-            hasVeg: hasVeg
-        }).then(() => { alert("訂單已送出！"); location.reload(); });
     };
 
     window.lookupOrder = () => {
         const key = document.getElementById('lookup-key').value.toLowerCase();
-        const tb = document.querySelector('#lookup-table tbody');
-        tb.innerHTML = orders.filter(o => o.buyer.toLowerCase().includes(key) || o.info.includes(key)).reverse().map(o => `
-            <tr>
-                <td><small>${o.ts}</small></td>
-                <td>${o.detail}</td>
-                <td style="color:red">$${o.total}</td>
-                <td>${o.isPaid ? '✅' : '❌'}</td>
-                <td>${o.shipStatus}</td>
-            </tr>
+        document.querySelector('#lookup-table tbody').innerHTML = orders.filter(o => o.buyer.toLowerCase().includes(key)).reverse().map(o => `
+            <tr><td>${o.detail}</td><td>$${o.total}</td><td>${o.isPaid?'已付':'未付'}</td><td>${o.shipStatus}</td></tr>
         `).join('');
     };
 
-    // --- 管理員功能 ---
+    // 管理功能 (含退款)
     function renderAdminOrders() {
-        const key = document.getElementById('admin-search').value.toLowerCase();
-        const tb = document.getElementById('admin-order-table');
-        
-        let filtered = orders.filter(o => o.buyer.toLowerCase().includes(key) || o.info.includes(key));
-        filtered.sort((a,b) => (a.hasVeg === b.hasVeg) ? new Date(a.ts) - new Date(b.ts) : a.hasVeg ? -1 : 1);
-
-        tb.innerHTML = filtered.map(o => `
-            <tr style="${o.hasVeg ? 'background:#fffcf0' : ''}">
+        document.getElementById('admin-order-table').innerHTML = orders.slice().reverse().map(o => `
+            <tr style="${o.shipStatus === '退款' ? 'opacity:0.5; text-decoration:line-through' : ''}">
                 <td><button onclick="updatePaid('${o.id}', ${o.isPaid})">${o.isPaid ? '✅' : '❌'}</button></td>
                 <td>
                     <select onchange="updateShip('${o.id}', this.value)">
                         <option value="待配送" ${o.shipStatus=='待配送'?'selected':''}>待配送</option>
                         <option value="配送中" ${o.shipStatus=='配送中'?'selected':''}>配送中</option>
                         <option value="已完成" ${o.shipStatus=='已完成'?'selected':''}>已完成</option>
+                        <option value="退款" ${o.shipStatus=='退款'?'selected':''}>退款</option>
                     </select>
                 </td>
                 <td><b>${o.buyer}</b><br><small>${o.info}</small></td>
                 <td><small>${o.detail}</small></td>
-                <td>$${o.total}</td>
-                <td><button onclick="delOrder('${o.id}')" style="color:red">刪</button></td>
+                <td><button onclick="delOrder('${o.id}')">刪</button></td>
             </tr>
         `).join('');
     }
 
     window.updatePaid = (id, cur) => update(ref(db, `orders/${id}`), { isPaid: !cur });
     window.updateShip = (id, val) => update(ref(db, `orders/${id}`), { shipStatus: val });
-    window.delOrder = (id) => { if(confirm("確定刪除？")) remove(ref(db, `orders/${id}`)); };
+    window.delOrder = (id) => { if(confirm("刪除？")) remove(ref(db, `orders/${id}`)); };
 
+    // 商品設定
     window.addProduct = () => {
         const n = document.getElementById('p-name').value;
         const p = document.getElementById('p-price').value;
-        if(n && p) push(ref(db, 'products'), { name: n, price: parseInt(p) });
+        const s = document.getElementById('p-stock').value;
+        if(n && p && s) push(ref(db, 'products'), { name: n, price: parseInt(p), stock: parseInt(s) });
     };
 
     function renderAdminProducts() {
-        document.getElementById('product-table').querySelector('tbody').innerHTML = products.map(p => `
-            <tr><td>${p.name}</td><td>$${p.price}</td><td><button onclick="delProduct('${p.id}')">刪除</button></td></tr>
+        document.querySelector('#product-table tbody').innerHTML = products.map(p => `
+            <tr><td>${p.name}</td><td>$${p.price}</td><td><b>${p.stock}</b></td><td><button onclick="delProduct('${p.id}')">刪除</button></td></tr>
         `).join('');
     }
     window.delProduct = (id) => remove(ref(db, `products/${id}`));
 
-    // --- 管理員口令管理 ---
-    window.addAdmin = () => {
-        const pass = document.getElementById('new-admin-pass').value;
-        if(pass) push(ref(db, 'admins'), { pass: pass }).then(() => document.getElementById('new-admin-pass').value = '');
-    };
-
-    function renderAdminList() {
-        document.querySelector('#admin-list-table tbody').innerHTML = admins.map(a => `
-            <tr><td>${a.pass}</td><td><button onclick="delAdmin('${a.id}')">刪除</button></td></tr>
-        `).join('');
-    }
-    window.delAdmin = (id) => remove(ref(db, `admins/${id}`));
+    // 口令
+    window.addAdmin = () => { if(document.getElementById('new-admin-pass').value) push(ref(db,'admins'), {pass: document.getElementById('new-admin-pass').value}); };
+    function renderAdminList() { document.querySelector('#admin-list-table tbody').innerHTML = admins.map(a=>`<tr><td>${a.pass}</td><td><button onclick="remove(ref(db,'admins/${a.id}'))">刪</button></td></tr>`).join(''); }
 
 </script>
 </body>
 </html>
-
