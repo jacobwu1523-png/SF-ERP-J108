@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>J108 ERP ｜ 權限隔離版</title>
+    <title>J108 ERP ｜ 專業權限隔離版</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
-        :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --success: #2ecc71; }
+        :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --success: #2ecc71; --brown: #795548; }
         
         body { font-family: "KaiTi", "標楷體", serif; background: var(--paper); color: var(--ink); margin: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
         .scroll-area { flex: 1; overflow-y: auto; padding: 15px; box-sizing: border-box; }
 
         /* 首頁角色選擇 */
         #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 25px; }
-        .role-btn { width: 80%; max-width: 300px; padding: 20px; font-size: 1.4rem; cursor: pointer; border: 4px double var(--ink); background: white; font-family: inherit; }
+        .role-btn { width: 80%; max-width: 300px; padding: 20px; font-size: 1.4rem; cursor: pointer; border: 4px double var(--ink); background: white; font-family: inherit; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        /* 導覽列 (管理員專用) */
+        /* 導覽列 */
         nav { background: var(--ink); padding: 10px; display: none; justify-content: center; gap: 8px; flex-wrap: wrap; z-index: 100; }
         nav button { background: rgba(255,255,255,0.1); border: 1px solid white; color: white; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
 
-        /* 卡片設計 */
+        /* 卡片系統 */
         .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .buyer-card { border-left: 5px solid var(--ink); }
+        .buyer-lookup-card { border-top: 4px solid var(--brown); background: #fffcf9; }
         
         input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; font-size: 1rem; margin-bottom: 10px; box-sizing: border-box; }
         .btn-main { background: var(--ink); color: white; padding: 15px; border: none; cursor: pointer; font-family: inherit; border-radius: 8px; width: 100%; font-size: 1.1rem; font-weight: bold; }
@@ -34,7 +34,7 @@
         .modal-box { background: var(--paper); padding: 25px; border: 6px double var(--ink); width: 85%; max-width: 360px; text-align: center; }
 
         .ticket { border: 2px dashed #888; padding: 15px; background: white; margin-top: 10px; }
-        .random-code { font-size: 2rem; font-weight: bold; color: var(--danger); letter-spacing: 2px; margin: 10px 0; }
+        .random-code { font-size: 2.2rem; font-weight: bold; color: var(--danger); letter-spacing: 2px; margin: 10px 0; border: 1px solid #eee; padding: 5px; }
     </style>
 </head>
 <body>
@@ -46,13 +46,14 @@
 </div>
 
 <nav id="admin-nav">
-    <button onclick="window.showSection('admin-orders')">📋 訂單管理</button>
-    <button onclick="window.showSection('admin-products')">⚙️ 參數修改</button>
-    <button onclick="window.showSection('admin-users')">👤 帳號設定</button>
-    <button onclick="location.reload()" style="background:#b71c1c;">🚪 登出</button>
+    <button onclick="window.showSection('admin-orders')">📋 訂單總覽</button>
+    <button onclick="window.showSection('admin-products')">⚙️ 調整參數</button>
+    <button onclick="window.showSection('admin-users')">👤 帳號密碼</button>
+    <button onclick="location.reload()" style="background:#b71c1c;">🚪 登出系統</button>
 </nav>
 
 <div class="scroll-area" id="app-container" style="display:none;">
+    
     <div id="buyer-page" class="section">
         <h2>🖋️ 填寫訂單</h2>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
@@ -64,37 +65,40 @@
             <select id="b-class"><option value="" disabled selected>班級</option></select>
             <select id="b-no" style="grid-column: span 2;"><option value="" disabled selected>座號</option></select>
         </div>
-        <input type="text" id="b-name" placeholder="您的真實姓名">
-        <label style="font-weight:bold; margin: 10px 0; display:block;">🛒 勾選商品：</label>
+        <input type="text" id="b-name" placeholder="請輸入姓名">
+        <label style="font-weight:bold; margin: 10px 0; display:block;">🛒 選購商品：</label>
         <div id="buyer-item-list" style="background:#fff; border:1px solid #ddd; border-radius:8px;"></div>
         <button class="btn-main" style="margin-top:20px;" onclick="window.submitOrder()">確認送出 🚀</button>
-        <button class="btn-main" style="background:#795548; margin-top:10px;" onclick="window.showSection('buyer-lookup')">🔍 憑隨機碼查訂單</button>
+        <button class="btn-main" style="background:var(--brown); margin-top:10px;" onclick="window.showSection('buyer-lookup')">🔍 憑隨機碼查訂單</button>
     </div>
 
     <div id="buyer-lookup" class="section">
-        <h2>🔍 查詢訂單</h2>
-        <input type="text" id="lookup-code" placeholder="請輸入 @隨機碼" oninput="window.renderBuyerLookup()">
-        <button class="btn-main" style="background:#888;" onclick="window.showSection('buyer-page')">返回</button>
-        <div id="lookup-cards" style="margin-top:15px;"></div>
+        <h2>🔍 憑隨機碼查詢</h2>
+        <p style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">輸入截圖發票上的 @隨機碼</p>
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <input type="text" id="lookup-code" placeholder="@××××××" oninput="window.renderBuyerLookup()">
+            <button class="btn-main" style="width:80px; padding:10px; background:#888;" onclick="window.showSection('buyer-page')">返回</button>
+        </div>
+        <div id="lookup-cards"></div>
     </div>
 
-    <div id="admin-orders" class="section"><h2>📋 訂單總管</h2><div id="admin-order-cards"></div></div>
+    <div id="admin-orders" class="section"><h2>📋 訂單卡片</h2><div id="admin-order-cards"></div></div>
     
     <div id="admin-products" class="section">
         <h2>⚙️ 修改商品參數</h2>
         <div class="card" style="background:#eee;">
-            <p><b>➕ 新增物品</b></p>
-            <input type="text" id="p-name" placeholder="名稱">
+            <p><b>➕ 新增物品：</b></p>
+            <input type="text" id="p-name" placeholder="物品名稱">
             <input type="number" id="p-price" placeholder="單價">
-            <input type="number" id="p-stock" placeholder="庫存">
+            <input type="number" id="p-stock" placeholder="初始庫存">
             <button class="btn-main" onclick="window.addProduct()">確認新增</button>
         </div>
         <div id="admin-product-cards"></div>
     </div>
 
     <div id="admin-users" class="section">
-        <h2>👤 管理帳號設定</h2>
-        <input type="text" id="new-admin-pass" placeholder="新代碼">
+        <h2>👤 管理員密碼設定</h2>
+        <input type="text" id="new-admin-pass" placeholder="輸入新代碼">
         <button class="btn-main" onclick="window.addAdmin()">新增口令</button>
         <div id="admin-list-cards" style="margin-top:20px;"></div>
     </div>
@@ -103,29 +107,29 @@
 <div id="ticket-modal" class="custom-modal">
     <div class="modal-box">
         <div class="ticket">
-            <h3>🧾 訂購憑證</h3>
-            <p id="t-buyer"></p>
-            <div style="background:#fff3cd; padding:10px;">
-                <p style="margin:0; font-size:0.8rem; font-weight:bold;">🔑 隨機防偽碼：</p>
+            <h3 style="margin:0;">🧾 訂購憑證</h3>
+            <p id="t-buyer" style="margin:10px 0; border-bottom:1px dashed #ccc; padding-bottom:5px;"></p>
+            <div style="background:#fff3cd; padding:10px; border-radius:5px;">
+                <p style="margin:0; font-size:0.8rem; font-weight:bold; color:#856404;">🔑 查詢與簽收隨機碼：</p>
                 <div class="random-code" id="t-random"></div>
             </div>
-            <p style="color:red; font-size:0.8rem;">請務必截圖！此碼用於查詢與簽收。</p>
+            <p style="color:red; font-size:0.85rem; margin-top:10px; font-weight:bold;">⚠️ 請務必截圖保存！<br>遺失此碼將無法查詢與領貨。</p>
         </div>
-        <button class="btn-main" style="margin-top:15px;" onclick="location.reload()">我已截圖</button>
+        <button class="btn-main" style="margin-top:15px;" onclick="location.reload()">我已截圖，返回首頁</button>
     </div>
 </div>
 
 <div id="verify-modal" class="custom-modal">
     <div class="modal-box">
-        <h3>📦 確認簽收</h3>
-        <p>請輸入您的 <b>隨機代碼</b>：</p>
-        <input type="text" id="verify-input" placeholder="@××××××" style="text-align:center; font-size:1.5rem;">
+        <h3>📦 簽收驗證</h3>
+        <p>請輸入您的 <b>隨機代碼</b> 以完成領取：</p>
+        <input type="text" id="verify-input" placeholder="@××××××" style="text-align:center; font-size:1.6rem; font-weight:bold;">
         <button class="btn-main" id="confirm-verify-btn">確認簽收</button>
         <button class="btn-main" style="background:#888; margin-top:10px;" onclick="document.getElementById('verify-modal').style.display='none'">取消</button>
     </div>
 </div>
 
-<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理登入</h3><input type="password" id="admin-pass-input" placeholder="代碼"><br><br><button class="btn-main" onclick="window.processAdminLogin()">登入</button><button class="btn-main" style="background:#888;" onclick="window.closeLogin()">取消</button></div></div>
+<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理員驗證</h3><input type="password" id="admin-pass-input" placeholder="代碼"><br><br><button class="btn-main" onclick="window.processAdminLogin()">登入</button><button class="btn-main" style="background:#888;" onclick="window.closeLogin()">取消</button></div></div>
 <div id="msg-modal" class="custom-modal"><div class="modal-box"><h3 id="msg-title"></h3><p id="msg-text"></p><button class="btn-main" onclick="window.closeMsg()">確定</button></div></div>
 
 <script type="module">
@@ -147,14 +151,22 @@
     const db = getDatabase(app);
     let products = [], orders = [], admins = [];
 
+    // 初始化選單
     const cls = document.getElementById('b-class'); for(let i=1; i<=20; i++) cls.add(new Option(i + " 班", i));
     const nos = document.getElementById('b-no'); for(let i=1; i<=50; i++) nos.add(new Option(i + " 號", i));
 
     window.enterApp = (role) => {
         document.getElementById('role-select').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
-        if(role === 'admin') { document.getElementById('admin-nav').style.display = 'flex'; window.showSection('admin-orders'); }
+        if(role === 'admin') { 
+            document.getElementById('admin-nav').style.display = 'flex'; 
+            window.showSection('admin-orders'); 
+            initAdminFunctions(); // 只有管理員模式才掛載修改功能
+        } else {
+            window.showSection('buyer-page');
+        }
     };
+
     window.showSection = (id) => { document.querySelectorAll('.section').forEach(s => s.style.display = 'none'); document.getElementById(id).style.display = 'block'; };
     window.openAdminLogin = () => document.getElementById('login-modal').style.display = 'flex';
     window.closeLogin = () => document.getElementById('login-modal').style.display = 'none';
@@ -164,23 +176,46 @@
     window.processAdminLogin = () => {
         const p = document.getElementById('admin-pass-input').value;
         if (p === "@J108" || admins.some(a => a.pass === p)) { window.closeLogin(); window.enterApp('admin'); }
-        else { window.customAlert("失敗", "驗證代碼錯誤"); }
+        else { window.customAlert("錯誤", "驗證代碼無效"); }
     };
 
+    // [核心隔離：管理員功能函式庫]
+    function initAdminFunctions() {
+        window.addProduct = () => {
+            const n = document.getElementById('p-name').value, p = document.getElementById('p-price').value, s = document.getElementById('p-stock').value;
+            if(n && p && s) push(ref(db, 'products'), { name: n, price: parseInt(p), stock: parseInt(s) });
+        };
+        window.updateP = (id) => {
+            const name = document.getElementById(`edit-n-${id}`).value;
+            const price = parseInt(document.getElementById(`edit-p-${id}`).value);
+            const stock = parseInt(document.getElementById(`edit-s-${id}`).value);
+            update(ref(db, `products/${id}`), { name, price, stock }).then(() => window.customAlert("完成", "參數已更新"));
+        };
+        window.upSt = (id, k, v) => update(ref(db, `orders/${id}`), { [k]: (k === 'isPaid' ? !v : v) });
+        window.addAdmin = () => {
+            const v = document.getElementById('new-admin-pass').value;
+            if(v) push(ref(db, 'admins'), { pass: v }).then(()=>document.getElementById('new-admin-pass').value='');
+        };
+        window.delD = (path, id) => { if(confirm("確定刪除？")) remove(ref(db, `${path}/${id}`)); };
+    }
+
+    // 資料監聽
     onValue(ref(db, 'products'), s => {
         products = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
-        renderBuyerItems(); renderAdminProducts();
+        renderBuyerItems(); 
+        if(document.getElementById('admin-nav').style.display === 'flex') renderAdminProducts();
     });
     onValue(ref(db, 'orders'), s => {
         orders = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
-        renderAdminOrders(); renderBuyerLookup();
+        if(document.getElementById('admin-nav').style.display === 'flex') renderAdminOrders();
+        renderBuyerLookup();
     });
     onValue(ref(db, 'admins'), s => {
         admins = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
-        renderAdminList();
+        if(document.getElementById('admin-nav').style.display === 'flex') renderAdminList();
     });
 
-    // --- 買家：純展示清單 ---
+    // --- 買家：純展示渲染 ---
     function renderBuyerItems() {
         document.getElementById('buyer-item-list').innerHTML = products.map((p, i) => `
             <div class="product-row" onclick="const ck=this.querySelector('.b-check'); if(!ck.disabled) ck.checked=!ck.checked;">
@@ -188,13 +223,13 @@
                 <div style="flex:1;"><b>${p.name}</b> ($${p.price})<br><small>庫存: ${p.stock}</small></div>
                 <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" onclick="event.stopPropagation();" style="width:50px;">
             </div>
-        `).join('') || "商品補貨中...";
+        `).join('');
     }
 
     window.submitOrder = () => {
         const name = document.getElementById('b-name').value;
-        const info = `${document.getElementById('b-grade').value} ${document.getElementById('b-class').value}班 ${document.getElementById('b-no').value}號`;
-        if(!name || document.getElementById('b-grade').value==="") return window.customAlert("錯誤", "資料不全");
+        const grade = document.getElementById('b-grade').value;
+        if(!name || !grade) return window.customAlert("提醒", "資料未填寫完整");
         let details = [], total = 0, updates = {};
         const checks = document.querySelectorAll('.b-check'), qtys = document.querySelectorAll('.b-qty');
         checks.forEach((ck, i) => {
@@ -205,9 +240,10 @@
                 updates[`products/${p.id}/stock`] = p.stock - q;
             }
         });
-        if(details.length === 0) return window.customAlert("錯誤", "未選商品");
+        if(details.length === 0) return window.customAlert("提醒", "請選擇商品");
         const rand = "@" + Math.floor(100000 + Math.random() * 900000);
         update(ref(db), updates).then(() => {
+            const info = `${grade} ${document.getElementById('b-class').value}班 ${document.getElementById('b-no').value}號`;
             push(ref(db, 'orders'), { ts: new Date().toLocaleString(), buyer: name, info, detail: details.join(", "), total, isPaid: false, shipStatus: "待配送", randCode: rand }).then(() => {
                 document.getElementById('t-buyer').innerText = `${name} (${info})`;
                 document.getElementById('t-random').innerText = rand;
@@ -222,39 +258,38 @@
         if(!code) { container.innerHTML = ""; return; }
         const matched = orders.filter(o => o.randCode === code);
         container.innerHTML = matched.map(o => `
-            <div class="card buyer-card">
-                <div style="float:right;">${o.isPaid ? '✅已付' : '❌未付'}</div>
-                <h3 style="color:var(--danger);">${o.shipStatus}</h3>
-                <p><b>買家：</b>${o.buyer}</p>
-                <p><b>項目：</b>${o.detail}</p>
-                <p><b>總額：</b>$${o.total}</p>
-                ${o.shipStatus.includes("中") || o.shipStatus === "已完成" ? `<button onclick="window.openVerify('${o.id}', '${o.randCode}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:5px; width:100%; margin-top:10px; font-weight:bold;">驗證隨機碼簽收</button>` : ""}
+            <div class="card buyer-lookup-card">
+                <div style="float:right; font-weight:bold; color:var(--brown);">${o.isPaid ? '✅已收款' : '❌待付款'}</div>
+                <h3 style="color:var(--danger); margin:0;">狀態：${o.shipStatus}</h3>
+                <p style="margin:10px 0 5px 0;"><b>訂購內容：</b>${o.detail}</p>
+                <p style="margin:5px 0;"><b>應付金額：</b>$${o.total}</p>
+                ${o.shipStatus.includes("中") || o.shipStatus === "已完成" ? `<button onclick="window.openVerify('${o.id}', '${o.randCode}')" style="background:var(--success); color:white; border:none; padding:12px; border-radius:8px; width:100%; margin-top:10px; font-weight:bold;">✅ 我已領貨（輸入隨機碼簽收）</button>` : ""}
             </div>
-        `).join('') || (code.length >= 7 ? "<p>查無訂單</p>" : "");
+        `).join('') || (code.length >= 7 ? "<p style='text-align:center;'>查無此隨機碼之訂單</p>" : "");
     };
 
     window.openVerify = (id, correctCode) => {
         document.getElementById('verify-modal').style.display = 'flex';
         document.getElementById('confirm-verify-btn').onclick = () => {
             if(document.getElementById('verify-input').value.trim() === correctCode) {
-                update(ref(db, `orders/${id}`), { shipStatus: "✅ 已簽收結案" }).then(() => {
-                    window.customAlert("成功", "簽收成功！");
+                update(ref(db, `orders/${id}`), { shipStatus: "✅ 已簽收完成" }).then(() => {
+                    window.customAlert("簽收成功", "感謝您的購買！");
                     document.getElementById('verify-modal').style.display = 'none';
                 });
-            } else { alert("錯誤！"); }
+            } else { alert("隨機碼錯誤！"); }
         };
     };
 
-    // --- 管理員：具備修改權限 ---
-    window.renderAdminOrders = () => {
+    // --- 管理員：私有渲染 ---
+    function renderAdminOrders() {
         document.getElementById('admin-order-cards').innerHTML = orders.slice().reverse().map(o => `
             <div class="card">
                 <div style="float:right; text-align:right;">
                     <button onclick="window.upSt('${o.id}', 'isPaid', ${o.isPaid})">${o.isPaid?'✅已付':'❌未付'}</button><br>
-                    <small style="color:red; font-weight:bold;">${o.randCode}</small>
+                    <small style="color:red; font-weight:bold;">碼: ${o.randCode}</small>
                 </div>
                 <h3>${o.buyer} (${o.info})</h3>
-                <p>內容: ${o.detail}</p>
+                <p>項目: ${o.detail}</p>
                 <select onchange="window.upSt('${o.id}', 'shipStatus', this.value)" style="width:auto;">
                     <option value="待配送" ${o.shipStatus=='待配送'?'selected':''}>待配送</option>
                     <option value="配送中" ${o.shipStatus=='配送中'?'selected':''}>配送中</option>
@@ -264,49 +299,30 @@
                 <button onclick="window.delD('orders', '${o.id}')" style="background:red; color:white; border:none; padding:5px; border-radius:4px;">刪</button>
             </div>
         `).join('');
-    };
+    }
 
-    window.upSt = (id, k, v) => update(ref(db, `orders/${id}`), { [k]: (k === 'isPaid' ? !v : v) });
-
-    window.renderAdminProducts = () => {
+    function renderAdminProducts() {
         document.getElementById('admin-product-cards').innerHTML = products.map(p => `
             <div class="card">
-                <p><b>修改物品參數：</b></p>
+                <p><b>修改商品參數：</b></p>
                 <input type="text" id="edit-n-${p.id}" value="${p.name}">
                 <div style="display:flex; gap:5px;"><input type="number" id="edit-p-${p.id}" value="${p.price}" style="flex:1;"><input type="number" id="edit-s-${p.id}" value="${p.stock}" style="flex:1;"></div>
-                <button onclick="window.updateP('${p.id}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:5px; width:48%;">💾 儲存</button>
-                <button onclick="window.delD('products', '${p.id}')" style="background:red; color:white; border:none; padding:10px; border-radius:5px; width:48%;">🗑️ 刪除</button>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="window.updateP('${p.id}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:8px; flex:1;">💾 儲存</button>
+                    <button onclick="window.delD('products', '${p.id}')" style="background:red; color:white; border:none; padding:10px; border-radius:8px;">🗑️ 刪除</button>
+                </div>
             </div>
         `).join('');
-    };
+    }
 
-    window.updateP = (id) => {
-        const name = document.getElementById(`edit-n-${id}`).value;
-        const price = parseInt(document.getElementById(`edit-p-${id}`).value);
-        const stock = parseInt(document.getElementById(`edit-s-${id}`).value);
-        update(ref(db, `products/${id}`), { name, price, stock }).then(() => window.customAlert("完成", "參數已更新"));
-    };
-
-    window.addProduct = () => {
-        const n = document.getElementById('p-name').value, p = document.getElementById('p-price').value, s = document.getElementById('p-stock').value;
-        if(n && p && s) push(ref(db, 'products'), { name: n, price: parseInt(p), stock: parseInt(s) });
-    };
-
-    window.addAdmin = () => {
-        const v = document.getElementById('new-admin-pass').value;
-        if(v) push(ref(db, 'admins'), { pass: v }).then(()=>document.getElementById('new-admin-pass').value='');
-    };
-
-    window.renderAdminList = () => {
+    function renderAdminList() {
         document.getElementById('admin-list-cards').innerHTML = admins.map((a, i) => `
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-weight:bold;">管理員密碼</span>
-                <button onclick="window.delD('admins', '${a.id}')" style="background:#888; color:white; border:none; padding:5px; border-radius:4px;">移除</button>
+                <button onclick="window.delD('admins', '${a.id}')" style="background:#888; color:white; border:none; padding:5px; border-radius:4px;">移除權限</button>
             </div>
         `).join('');
-    };
-
-    window.delD = (path, id) => { if(confirm("確定刪除？")) remove(ref(db, `${path}/${id}`)); };
+    }
 </script>
 </body>
 </html>
