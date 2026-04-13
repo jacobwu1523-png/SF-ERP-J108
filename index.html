@@ -3,244 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J108 ERP ｜ 智慧排單版</title>
+    <title>J108 ERP ｜ 書法職人版</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
-        :root { --deep-blue: #1a2a6c; --danger: #e74c3c; --success: #27ae60; --veg-green: #2ecc71; }
-        body { font-family: 'Noto Sans TC', sans-serif; background: #eef2f3; margin: 0; padding-bottom: 50px; }
-        
-        nav { background: linear-gradient(to right, #1a2a6c, #b21f1f, #fdbb2d); padding: 15px; display: flex; justify-content: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
-        nav button { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255,255,255,0.5); color: white; padding: 10px 20px; cursor: pointer; border-radius: 30px; font-weight: bold; }
-        nav button.active { background: white; color: var(--deep-blue); }
+        /* 引用 Google Fonts 的 Noto Serif TC (明體/宋體，較有書卷氣) */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
 
-        .container { max-width: 1100px; margin: 20px auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .page-content { display: none; }
-        .page-content.active { display: block; }
+        :root { 
+            --deep-blue: #1a2a6c; 
+            --danger: #e74c3c; 
+            --success: #27ae60; 
+            --veg-green: #2ecc71; 
+        }
+
+        body { 
+            /* 優先使用楷體，營造書法感 */
+            font-family: "KaiTi", "標楷體", "Kaiti TC", "Noto Serif TC", serif; 
+            background: #fdfaf5; /* 換成淡淡的紙張色 */
+            margin: 0; 
+            padding-bottom: 50px; 
+        }
+        
+        /* 標題加強書法感 */
+        h2, h3 { 
+            font-family: "Noto Serif TC", "標楷體", serif; 
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #3e2723; /* 深木頭色 */
+        }
+
+        nav { 
+            background: linear-gradient(to right, #1a2a6c, #8e24aa, #bf360c); 
+            padding: 15px; 
+            display: flex; 
+            justify-content: center; 
+            gap: 10px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+        }
+
+        nav button { 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255,255,255,0.4); 
+            color: white; 
+            padding: 10px 22px; 
+            cursor: pointer; 
+            border-radius: 5px; /* 書法體配方型微圓角較有質感 */
+            font-weight: bold; 
+            font-family: inherit;
+        }
+
+        nav button.active { background: #fff; color: #1a2a6c; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+
+        .container { 
+            max-width: 1150px; 
+            margin: 25px auto; 
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border: 1px solid #e0d7c6;
+        }
 
         /* 智慧標籤 */
-        .veg-tag { background: var(--veg-green); color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-right: 5px; }
-        .priority-row { border-left: 5px solid var(--veg-green) !important; background: #f0fff4 !important; }
+        .veg-tag { background: #5d4037; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 13px; font-weight: bold; }
+        .priority-row { border-left: 8px solid #5d4037 !important; background: #fffcf5 !important; }
+        .done-row { opacity: 0.4; filter: grayscale(100%); }
 
-        /* 搜尋與篩選區 */
-        .filter-bar { background: #f8f9fa; padding: 15px; border-radius: 15px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        .filter-bar input { flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
-
-        table { width: 100%; border-collapse: collapse; }
-        th { background: var(--deep-blue); color: white; padding: 12px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
-        tr:hover { background: #f1f4f9; }
-
-        /* 彈窗樣式 (Modal) */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; position: relative; text-align: center; border: 4px solid var(--deep-blue); }
-        .ticket-header { border-bottom: 2px dashed #ccc; margin-bottom: 15px; padding-bottom: 10px; }
+        /* 表格與狀態 */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #3e2723; color: #fff; padding: 14px; text-align: left; font-size: 16px; }
+        td { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 17px; }
         
-        .btn-close { position: absolute; top: 10px; right: 10px; font-size: 24px; cursor: pointer; }
-        .btn-del { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; }
+        input, select { 
+            font-family: inherit; 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #d7ccc8; 
+            border-radius: 4px; 
+            background: #fafafa;
+        }
+
+        .status-btn { border: none; background: none; font-size: 1.4rem; cursor: pointer; }
+        
+        /* 配送狀態選單美化 */
+        .ship-select { 
+            padding: 6px; 
+            border-radius: 4px; 
+            border: 1px solid #ccc; 
+            font-weight: bold; 
+            font-family: inherit;
+        }
+        .wait { color: #795548; }
+        .doing { background: #fff3cd; color: #856404; }
+        .finish { background: #d4edda; color: #155724; }
+
+        /* 彈窗 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { 
+            background: #fff; 
+            padding: 40px; 
+            border-radius: 5px; 
+            width: 85%; 
+            max-width: 450px; 
+            text-align: center; 
+            border: 10px double #3e2723; /* 雙線邊框更有質感 */
+        }
     </style>
 </head>
-<body>
-
-<nav>
-    <button onclick="showPage('order-ui')" id="btn-order">✨ 我要下單</button>
-    <button onclick="showPage('admin-ui')" id="btn-admin">📋 智慧管理</button>
-    <button onclick="showPage('config-ui')" id="btn-config">⚙️ 商品設定</button>
-</nav>
-
-<div class="container">
-    <div id="order-ui" class="page-content active">
-        <h2>🌙 填寫訂購單</h2>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:15px;">
-            <input type="text" id="grade" placeholder="年級">
-            <input type="text" id="class" placeholder="班級">
-            <input type="number" id="no" placeholder="座號">
-        </div>
-        <input type="text" id="buyer" placeholder="買家姓名" style="width:100%; padding:10px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd;">
-        <div id="itemSelection" style="background:#fafbfc; padding:15px; border-radius:15px; border:1px solid #f0f4f8;">載入商品中...</div>
-        <h3 style="text-align:right">總額：<span style="color:red">$<span id="grandTotal">0</span></span></h3>
-        <button onclick="handleOrderSubmit()" style="width:100%; background:var(--deep-blue); color:white; padding:15px; border:none; border-radius:10px; font-size:1.2rem; cursor:pointer;">提交訂單 🚀</button>
-    </div>
-
-    <div id="admin-ui" class="page-content">
-        <h2>📋 智慧排單 (蔬菜/最早優先)</h2>
-        <div class="filter-bar">
-            🔍 <input type="text" id="searchInput" placeholder="搜尋人名或商品..." oninput="renderOrders()">
-            📅 <select id="dateFilter" onchange="renderOrders()" style="padding:10px; border-radius:8px;">
-                <option value="today">僅看今日</option>
-                <option value="all">顯示全部</option>
-            </select>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>狀態</th>
-                    <th>買家</th>
-                    <th>內容 (點擊看明細)</th>
-                    <th>金額</th>
-                    <th>管理</th>
-                </tr>
-            </thead>
-            <tbody id="orderTable"></tbody>
-        </table>
-    </div>
-
-    <div id="config-ui" class="page-content">
-        <h2>⚙️ 商品設定</h2>
-        <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <input type="text" id="pName" placeholder="商品名稱 (加'蔬菜'會自動優先)" style="flex:2; padding:10px;">
-            <input type="number" id="pPrice" placeholder="單價" style="flex:1; padding:10px;">
-            <button onclick="handleAddProduct()" style="background:var(--deep-blue); color:white; border:none; padding:10px 20px; border-radius:8px;">上架</button>
-        </div>
-        <table id="productManageTable"></table>
-    </div>
-</div>
-
-<div id="ticketModal" class="modal">
-    <div class="modal-content" id="printableTicket">
-        <span class="btn-close" onclick="closeModal()">&times;</span>
-        <div class="ticket-header">
-            <h3>J108 訂單明細</h3>
-            <p id="tTime" style="font-size:12px; color:#888;"></p>
-        </div>
-        <div style="text-align:left; line-height:1.8;">
-            <p><b>買家：</b><span id="tBuyer"></span></p>
-            <p><b>班級座號：</b><span id="tInfo"></span></p>
-            <hr>
-            <p><b>訂購內容：</b></p>
-            <div id="tDetail" style="background:#f9f9f9; padding:10px; border-radius:5px;"></div>
-            <h2 style="text-align:right; color:red; margin-top:15px;">總計：$<span id="tTotal"></span></h2>
-        </div>
-        <button onclick="window.print()" style="margin-top:20px; background:#ddd; border:none; padding:5px 10px; border-radius:5px;">列印/截圖</button>
-    </div>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyCWNgvwCRygbBz3X7qHwKwWpBxaqTezM2w",
-        authDomain: "j108-erp-sf.firebaseapp.com",
-        databaseURL: "https://j108-erp-sf-default-rtdb.firebaseio.com",
-        projectId: "j108-erp-sf",
-        storageBucket: "j108-erp-sf.firebasestorage.app",
-        messagingSenderId: "882533412622",
-        appId: "1:882533412622:web:fd8b88106875f927cf715f",
-        measurementId: "G-RBWTME89M3"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    let currentProducts = [];
-    let allOrders = [];
-
-    window.showPage = (id) => {
-        document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        document.getElementById('btn-' + id.split('-')[0]).classList.add('active');
-    };
-
-    // 商品處理
-    onValue(ref(db, 'products'), (snapshot) => {
-        const data = snapshot.val();
-        currentProducts = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
-        renderOrderUI();
-        renderConfigUI();
-    });
-
-    window.handleAddProduct = () => {
-        const name = document.getElementById('pName').value;
-        const price = document.getElementById('pPrice').value;
-        if(name && price) { push(ref(db, 'products'), { name, price: parseInt(price) }); }
-    };
-
-    function renderOrderUI() {
-        document.getElementById('itemSelection').innerHTML = currentProducts.map((p, i) => `
-            <div style="display:flex; align-items:center; padding:8px; border-bottom:1px solid #eee;">
-                <input type="checkbox" class="p-check" onchange="updateSum()">
-                <div style="flex:1; margin-left:10px;">${p.name.includes('蔬菜') ? '<span class="veg-tag">急</span>' : ''} <b>${p.name}</b> ($${p.price})</div>
-                <input type="number" class="p-qty" value="1" min="1" style="width:50px;" oninput="updateSum()">
-            </div>
-        `).join('');
-    }
-
-    window.updateSum = () => {
-        let total = 0;
-        document.querySelectorAll('.p-check').forEach((ck, i) => {
-            if(ck.checked) total += currentProducts[i].price * document.querySelectorAll('.p-qty')[i].value;
-        });
-        document.getElementById('grandTotal').innerText = total;
-    };
-
-    window.handleOrderSubmit = () => {
-        let details = [];
-        document.querySelectorAll('.p-check').forEach((ck, i) => {
-            if(ck.checked) details.push(`${currentProducts[i].name}x${document.querySelectorAll('.p-qty')[i].value}`);
-        });
-        if(!document.getElementById('buyer').value || details.length === 0) return alert("資料不全");
-
-        push(ref(db, 'orders'), {
-            ts: new Date().toLocaleString(),
-            dateOnly: new Date().toLocaleDateString(),
-            info: `${document.getElementById('grade').value}-${document.getElementById('class').value} / ${document.getElementById('no').value}號`,
-            buyer: document.getElementById('buyer').value,
-            detail: details.join(", "),
-            total: document.getElementById('grandTotal').innerText,
-            isPaid: false,
-            hasVeg: details.some(d => d.includes('蔬菜'))
-        }).then(() => location.reload());
-    };
-
-    // 智慧排序與管理
-    onValue(ref(db, 'orders'), (snapshot) => {
-        const data = snapshot.val();
-        allOrders = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
-        renderOrders();
-    });
-
-    window.renderOrders = () => {
-        const keyword = document.getElementById('searchInput').value.toLowerCase();
-        const dateFilter = document.getElementById('dateFilter').value;
-        const today = new Date().toLocaleDateString();
-
-        let filtered = allOrders.filter(o => 
-            (o.buyer.toLowerCase().includes(keyword) || o.detail.toLowerCase().includes(keyword)) &&
-            (dateFilter === 'all' || o.dateOnly === today)
-        );
-
-        // 智慧排序邏輯：有蔬菜的優先，然後按時間先後 (最早的在上面)
-        filtered.sort((a, b) => {
-            if (a.hasVeg !== b.hasVeg) return a.hasVeg ? -1 : 1; // 蔬菜優先
-            return new Date(a.ts) - new Date(b.ts); // 早訂購的優先
-        });
-
-        document.getElementById('orderTable').innerHTML = filtered.map(o => `
-            <tr class="${o.hasVeg ? 'priority-row' : ''}" onclick="showTicket('${o.id}')">
-                <td><button onclick="event.stopPropagation(); togglePaid('${o.id}', ${o.isPaid})">${o.isPaid ? '✅' : '❌'}</button></td>
-                <td><b>${o.buyer}</b><br><small>${o.info}</small></td>
-                <td>${o.hasVeg ? '<span class="veg-tag">優先配送</span>' : ''}${o.detail}</td>
-                <td style="color:red; font-weight:bold">$${o.total}</td>
-                <td><button class="btn-del" onclick="event.stopPropagation(); delOrder('${o.id}')">刪</button></td>
-            </tr>
-        `).join('');
-    };
-
-    window.togglePaid = (id, cur) => update(ref(db, `orders/${id}`), { isPaid: !cur });
-    window.delOrder = (id) => { if(confirm("刪除訂單？")) remove(ref(db, `orders/${id}`)); };
-
-    // 彈窗邏輯
-    window.showTicket = (id) => {
-        const o = allOrders.find(order => order.id === id);
-        document.getElementById('tTime').innerText = o.ts;
-        document.getElementById('tBuyer').innerText = o.buyer;
-        document.getElementById('tInfo').innerText = o.info;
-        document.getElementById('tDetail').innerText = o.detail;
-        document.getElementById('tTotal').innerText = o.total;
-        document.getElementById('ticketModal').style.display = 'flex';
-    };
-    window.closeModal = () => document.getElementById('ticketModal').style.display = 'none';
-
-</script>
-</body>
-</html>
