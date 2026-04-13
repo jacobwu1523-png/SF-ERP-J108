@@ -3,46 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J108 ERP ｜ 庫存與退款管理版</title>
+    <title>J108 ERP ｜ 職人美化版</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
-        :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --refund: #95a5a6; }
+        :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --gold: #d4af37; }
+        
         body { font-family: "KaiTi", "標楷體", serif; background: var(--paper); color: var(--ink); margin: 0; }
         
         /* 角色選擇 */
-        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 20px; }
-        .role-btn { padding: 15px 30px; font-size: 1.2rem; cursor: pointer; border: 2px solid var(--ink); background: white; font-family: inherit; }
+        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 30px; }
+        .role-btn { padding: 20px 40px; font-size: 1.5rem; cursor: pointer; border: 3px double var(--ink); background: white; font-family: inherit; transition: 0.3s; }
+        .role-btn:hover { background: var(--ink); color: white; transform: scale(1.05); }
 
         /* 導覽列 */
-        nav { background: var(--ink); padding: 12px; display: none; justify-content: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
-        nav button { background: rgba(255,255,255,0.1); border: 1px solid white; color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; }
+        nav { background: var(--ink); padding: 12px; display: none; justify-content: center; gap: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        nav button { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.5); color: white; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-family: inherit; }
+        nav button.active { background: var(--paper); color: var(--ink); font-weight: bold; }
 
-        .container { max-width: 1100px; margin: 20px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; }
+        .container { max-width: 1100px; margin: 20px auto; background: white; padding: 30px; border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #d7ccc8; display: none; }
         .section { display: none; }
         .section.active { display: block; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 15px; }
-        th { background: var(--ink); color: white; padding: 10px; text-align: left; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
+        /* 表格與輸入 */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #5d4037; color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #efebe9; }
+        input, select { font-family: inherit; padding: 10px; border: 1px solid #d7ccc8; border-radius: 4px; }
+        .btn-main { background: var(--ink); color: white; padding: 12px; border: none; cursor: pointer; font-family: inherit; border-radius: 4px; }
 
-        .stock-tag { color: #d35400; font-weight: bold; font-size: 12px; }
-        .status-refund { background: var(--refund); color: white; padding: 2px 5px; border-radius: 3px; }
-        .btn-main { background: var(--ink); color: white; padding: 10px 20px; border: none; cursor: pointer; font-family: inherit; width: 100%; }
+        /* 自訂彈窗 UI */
+        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: var(--paper); padding: 40px; border: 8px double var(--ink); border-radius: 5px; text-align: center; width: 90%; max-width: 400px; }
+        
+        .priority-row { border-left: 8px solid #5d4037 !important; background: #fffcf5 !important; }
+        .veg-tag { background: #2e7d32; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div id="role-select">
-    <h1 style="font-size: 2.5rem;">J108 ERP 智慧系統</h1>
-    <button class="role-btn" onclick="enterApp('buyer')">🛍️ 買家下單 / 查訂單</button>
-    <button class="role-btn" onclick="checkAdminLogin()">⚙️ 管理員登入</button>
+    <h1 style="font-size: 3rem; letter-spacing: 5px;">J108 ERP 智慧系統</h1>
+    <div style="display: flex; gap: 30px;">
+        <button class="role-btn" onclick="enterApp('buyer')">🛍️ 買家進入</button>
+        <button class="role-btn" onclick="openAdminLogin()">⚙️ 管理登入</button>
+    </div>
+</div>
+
+<div id="login-modal" class="custom-modal">
+    <div class="modal-box">
+        <h3>管理權限驗證</h3>
+        <p>請輸入管理口令</p>
+        <input type="password" id="admin-pass-input" placeholder="請輸入代碼">
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+            <button class="btn-main" onclick="processAdminLogin()">登入</button>
+            <button class="btn-main" style="background:#888;" onclick="closeLogin()">取消</button>
+        </div>
+    </div>
+</div>
+
+<div id="msg-modal" class="custom-modal">
+    <div class="modal-box">
+        <h3 id="msg-title">提示</h3>
+        <p id="msg-text"></p>
+        <button class="btn-main" onclick="closeMsg()">確定</button>
+    </div>
 </div>
 
 <nav id="admin-nav">
-    <button onclick="showSection('admin-orders')">📋 訂單管理</button>
-    <button onclick="showSection('admin-products')">⚙️ 庫存設定</button>
-    <button onclick="showSection('admin-users')">👤 帳號管理</button>
-    <button onclick="location.reload()">🚪 登出</button>
+    <button onclick="showSection('admin-orders')" class="nav-btn active">📋 訂單管理</button>
+    <button onclick="showSection('admin-products')" class="nav-btn">⚙️ 庫存設定</button>
+    <button onclick="showSection('admin-users')" class="nav-btn">👤 帳號管理</button>
+    <button onclick="location.reload()" style="background:#c0392b;">🚪 登出</button>
 </nav>
 
 <div class="container" id="buyer-app">
@@ -53,16 +84,16 @@
             <input type="text" id="b-class" placeholder="班級">
             <input type="number" id="b-no" placeholder="座號">
         </div>
-        <input type="text" id="b-name" placeholder="您的姓名" style="width:100%; padding:10px; margin-bottom:15px; box-sizing: border-box;">
-        <div id="buyer-item-list" style="border:1px solid #eee; padding:10px; background:#fafafa; margin-bottom:15px;">同步雲端庫存中...</div>
-        <button class="btn-main" onclick="submitOrder()">確認提交訂單 🚀</button>
-        <button class="btn-main" style="background:#795548; margin-top:10px;" onclick="showSection('buyer-lookup')">🔍 查詢我的訂單</button>
+        <input type="text" id="b-name" placeholder="您的姓名" style="width:100%; margin-bottom:15px; box-sizing: border-box;">
+        <div id="buyer-item-list" style="border:1px solid #d7ccc8; padding:15px; background:#fff; margin-bottom:15px;">載入雲端中...</div>
+        <button class="btn-main" style="width:100%; font-size:1.5rem;" onclick="submitOrder()">提交訂單 🚀</button>
+        <button class="btn-main" style="background:#795548; margin-top:15px; width:100%;" onclick="showSection('buyer-lookup')">🔍 查詢我的訂單</button>
     </div>
 
     <div id="buyer-lookup" class="section">
-        <h2>🔍 訂單狀態查詢</h2>
-        <input type="text" id="lookup-key" placeholder="輸入姓名查詢..." style="width:70%; padding:10px;" oninput="lookupOrder()">
-        <button onclick="showSection('buyer-order-form')">返回</button>
+        <h2>🔍 我的訂單</h2>
+        <input type="text" id="lookup-key" placeholder="輸入姓名查詢..." style="width:70%;" oninput="lookupOrder()">
+        <button class="btn-main" onclick="showSection('buyer-order-form')">返回</button>
         <table id="lookup-table">
             <thead><tr><th>內容</th><th>金額</th><th>付款</th><th>配送</th></tr></thead>
             <tbody></tbody>
@@ -72,30 +103,22 @@
 
 <div class="container" id="admin-app">
     <div id="admin-orders" class="section active">
-        <h2>📋 訂單與退款管理</h2>
-        <table style="font-size: 13px;">
-            <thead><tr><th>付款</th><th>配送</th><th>買家</th><th>內容</th><th>管理</th></tr></thead>
+        <h2>📋 智慧排單管理</h2>
+        <table style="font-size: 14px;">
+            <thead><tr><th>付款</th><th>配送</th><th>買家</th><th>內容</th><th>金額</th><th>管理</th></tr></thead>
             <tbody id="admin-order-table"></tbody>
         </table>
     </div>
-
     <div id="admin-products" class="section">
-        <h2>⚙️ 商品與庫存設定</h2>
+        <h2>⚙️ 庫存設定</h2>
         <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:10px; margin-bottom:15px;">
-            <input type="text" id="p-name" placeholder="商品名稱">
-            <input type="number" id="p-price" placeholder="單價">
-            <input type="number" id="p-stock" placeholder="庫存">
-            <button class="btn-main" onclick="addProduct()">上架</button>
+            <input type="text" id="p-name" placeholder="名稱"><input type="number" id="p-price" placeholder="價"><input type="number" id="p-stock" placeholder="庫存"><button class="btn-main" onclick="addProduct()">上架</button>
         </div>
-        <table id="product-table">
-            <thead><tr><th>商品</th><th>單價</th><th>剩餘庫存</th><th>操作</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <table id="product-table"><thead><tr><th>商品</th><th>單價</th><th>庫存</th><th>管理</th></tr></thead><tbody></tbody></table>
     </div>
-
     <div id="admin-users" class="section">
-        <h2>👤 管理員口令</h2>
-        <div style="display:flex; gap:10px;"><input type="text" id="new-admin-pass"><button onclick="addAdmin()">新增</button></div>
+        <h2>👤 管理口令</h2>
+        <div style="display:flex; gap:10px;"><input type="text" id="new-admin-pass"><button class="btn-main" onclick="addAdmin()">新增</button></div>
         <table id="admin-list-table"><tbody></tbody></table>
     </div>
 </div>
@@ -119,16 +142,31 @@
     const db = getDatabase(app);
     let products = [], orders = [], admins = [];
 
+    // --- 彈窗與登入 ---
+    window.customAlert = (title, text) => {
+        document.getElementById('msg-title').innerText = title;
+        document.getElementById('msg-text').innerText = text;
+        document.getElementById('msg-modal').style.display = 'flex';
+    };
+    window.closeMsg = () => document.getElementById('msg-modal').style.display = 'none';
+    window.openAdminLogin = () => document.getElementById('login-modal').style.display = 'flex';
+    window.closeLogin = () => document.getElementById('login-modal').style.display = 'none';
+
+    window.processAdminLogin = () => {
+        const pass = document.getElementById('admin-pass-input').value;
+        // 修改這裡：預設口令為 @J108
+        if (pass === "@J108" || admins.some(a => a.pass === pass)) {
+            closeLogin();
+            enterApp('admin');
+        } else {
+            customAlert("驗證失敗", "口令代碼不正確。");
+        }
+    };
+
     window.enterApp = (role) => {
         document.getElementById('role-select').style.display = 'none';
         document.getElementById(role + '-app').style.display = 'block';
         if(role === 'admin') document.getElementById('admin-nav').style.display = 'flex';
-    };
-
-    window.checkAdminLogin = () => {
-        const pass = prompt("管理口令：");
-        if (pass === "1234" || admins.some(a => a.pass === pass)) enterApp('admin');
-        else alert("錯誤");
     };
 
     window.showSection = (id) => {
@@ -136,73 +174,52 @@
         document.getElementById(id).classList.add('active');
     };
 
-    // 同步資料
+    // --- 資料庫同步與管理功能邏輯 (與上版本一致) ---
     onValue(ref(db, 'products'), s => {
         products = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
-        renderBuyerItems();
-        renderAdminProducts();
+        renderBuyerItems(); renderAdminProducts();
     });
-
     onValue(ref(db, 'orders'), s => {
         orders = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
         renderAdminOrders();
     });
-
     onValue(ref(db, 'admins'), s => {
         admins = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
         renderAdminList();
     });
 
-    // 買家功能 (含庫存檢查)
     function renderBuyerItems() {
         document.getElementById('buyer-item-list').innerHTML = products.map((p, i) => `
-            <div style="display:flex; align-items:center; padding:8px; border-bottom:1px solid #eee;">
-                <input type="checkbox" class="b-check" data-id="${p.id}" ${p.stock <= 0 ? 'disabled' : ''}>
+            <div style="display:flex; align-items:center; padding:10px; border-bottom:1px solid #eee;">
+                <input type="checkbox" class="b-check" ${p.stock <= 0 ? 'disabled' : ''}>
                 <div style="flex:1; margin-left:10px;">
-                    <b>${p.name}</b> ($${p.price}) 
-                    <span class="stock-tag">${p.stock > 0 ? '剩餘 '+p.stock : '已售完'}</span>
+                    ${p.name.includes('蔬菜') ? '<span class="veg-tag">優先</span>' : ''} <b>${p.name}</b> ($${p.price})
+                    <span style="color:#d35400; font-size:12px;">${p.stock > 0 ? '(剩 '+p.stock+' 個)' : '(已售完)'}</span>
                 </div>
-                <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" style="width:45px;" ${p.stock <= 0 ? 'disabled' : ''}>
+                <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" style="width:50px;" ${p.stock <= 0 ? 'disabled' : ''}>
             </div>
-        `).join('');
+        `).join('') || "商品準備中...";
     }
 
     window.submitOrder = () => {
         const name = document.getElementById('b-name').value;
-        const details = [];
-        let total = 0, updates = {};
-
-        const checks = document.querySelectorAll('.b-check');
-        const qtys = document.querySelectorAll('.b-qty');
-
+        let details = [], total = 0, updates = {};
+        const checks = document.querySelectorAll('.b-check'), qtys = document.querySelectorAll('.b-qty');
         for(let i=0; i<checks.length; i++) {
             if(checks[i].checked) {
-                const buyQty = parseInt(qtys[i].value);
-                const product = products[i];
-                if(buyQty > product.stock) {
-                    alert(`${product.name} 庫存不足！僅剩 ${product.stock} 個`);
-                    return;
-                }
-                details.push(`${product.name}x${buyQty}`);
-                total += product.price * buyQty;
-                // 準備扣庫存
-                updates[`products/${product.id}/stock`] = product.stock - buyQty;
+                const q = parseInt(qtys[i].value), p = products[i];
+                if(q > p.stock) return customAlert("庫存不足", p.name + " 庫存不足");
+                details.push(`${p.name}x${q}`); total += p.price * q;
+                updates[`products/${p.id}/stock`] = p.stock - q;
             }
         }
-
-        if(!name || details.length === 0) return alert("請填寫完整");
-
-        // 同時扣庫存與送訂單
+        if(!name || details.length === 0) return customAlert("提示", "請填寫資料");
         update(ref(db), updates).then(() => {
             push(ref(db, 'orders'), {
                 ts: new Date().toLocaleString(),
-                buyer: name,
-                info: `${document.getElementById('b-grade').value}-${document.getElementById('b-class').value}-${document.getElementById('b-no').value}`,
-                detail: details.join(", "),
-                total: total,
-                isPaid: false,
-                shipStatus: "待配送"
-            }).then(() => { alert("訂購成功！"); location.reload(); });
+                buyer: name, info: `${document.getElementById('b-grade').value}-${document.getElementById('b-class').value}-${document.getElementById('b-no').value}`,
+                detail: details.join(", "), total, isPaid: false, shipStatus: "待配送"
+            }).then(() => { customAlert("成功", "訂單已送出！"); setTimeout(()=>location.reload(), 1500); });
         });
     };
 
@@ -213,13 +230,13 @@
         `).join('');
     };
 
-    // 管理功能 (含退款)
     function renderAdminOrders() {
-        document.getElementById('admin-order-table').innerHTML = orders.slice().reverse().map(o => `
-            <tr style="${o.shipStatus === '退款' ? 'opacity:0.5; text-decoration:line-through' : ''}">
-                <td><button onclick="updatePaid('${o.id}', ${o.isPaid})">${o.isPaid ? '✅' : '❌'}</button></td>
+        let sorted = [...orders].sort((a,b) => (a.detail.includes('蔬菜') === b.detail.includes('蔬菜')) ? new Date(a.ts) - new Date(b.ts) : a.detail.includes('蔬菜') ? -1 : 1);
+        document.getElementById('admin-order-table').innerHTML = sorted.map(o => `
+            <tr class="${o.detail.includes('蔬菜') ? 'priority-row' : ''}">
+                <td><button onclick="updateStatus('${o.id}', 'isPaid', ${o.isPaid})">${o.isPaid ? '✅' : '❌'}</button></td>
                 <td>
-                    <select onchange="updateShip('${o.id}', this.value)">
+                    <select onchange="updateStatus('${o.id}', 'shipStatus', this.value)">
                         <option value="待配送" ${o.shipStatus=='待配送'?'selected':''}>待配送</option>
                         <option value="配送中" ${o.shipStatus=='配送中'?'selected':''}>配送中</option>
                         <option value="已完成" ${o.shipStatus=='已完成'?'selected':''}>已完成</option>
@@ -228,34 +245,29 @@
                 </td>
                 <td><b>${o.buyer}</b><br><small>${o.info}</small></td>
                 <td><small>${o.detail}</small></td>
-                <td><button onclick="delOrder('${o.id}')">刪</button></td>
+                <td>$${o.total}</td>
+                <td><button style="background:red; color:white; border:none; border-radius:3px;" onclick="remove(ref(db, 'orders/${o.id}'))">刪</button></td>
             </tr>
         `).join('');
     }
 
-    window.updatePaid = (id, cur) => update(ref(db, `orders/${id}`), { isPaid: !cur });
-    window.updateShip = (id, val) => update(ref(db, `orders/${id}`), { shipStatus: val });
-    window.delOrder = (id) => { if(confirm("刪除？")) remove(ref(db, `orders/${id}`)); };
-
-    // 商品設定
+    window.updateStatus = (id, k, v) => update(ref(db, `orders/${id}`), { [k]: (k === 'isPaid' ? !v : v) });
     window.addProduct = () => {
-        const n = document.getElementById('p-name').value;
-        const p = document.getElementById('p-price').value;
-        const s = document.getElementById('p-stock').value;
+        const n = document.getElementById('p-name').value, p = document.getElementById('p-price').value, s = document.getElementById('p-stock').value;
         if(n && p && s) push(ref(db, 'products'), { name: n, price: parseInt(p), stock: parseInt(s) });
     };
-
     function renderAdminProducts() {
         document.querySelector('#product-table tbody').innerHTML = products.map(p => `
-            <tr><td>${p.name}</td><td>$${p.price}</td><td><b>${p.stock}</b></td><td><button onclick="delProduct('${p.id}')">刪除</button></td></tr>
+            <tr><td>${p.name}</td><td>$${p.price}</td><td>${p.stock}</td><td><button onclick="remove(ref(db, 'products/${p.id}'))">刪</button></td></tr>
         `).join('');
     }
-    window.delProduct = (id) => remove(ref(db, `products/${id}`));
-
-    // 口令
-    window.addAdmin = () => { if(document.getElementById('new-admin-pass').value) push(ref(db,'admins'), {pass: document.getElementById('new-admin-pass').value}); };
-    function renderAdminList() { document.querySelector('#admin-list-table tbody').innerHTML = admins.map(a=>`<tr><td>${a.pass}</td><td><button onclick="remove(ref(db,'admins/${a.id}'))">刪</button></td></tr>`).join(''); }
-
+    window.addAdmin = () => {
+        const v = document.getElementById('new-admin-pass').value;
+        if(v) push(ref(db, 'admins'), { pass: v }).then(()=>document.getElementById('new-admin-pass').value='');
+    };
+    function renderAdminList() {
+        document.querySelector('#admin-list-table tbody').innerHTML = admins.map(a => `<tr><td>${a.pass}</td><td><button onclick="remove(ref(db, 'admins/${a.id}'))">刪</button></td></tr>`).join('');
+    }
 </script>
 </body>
 </html>
