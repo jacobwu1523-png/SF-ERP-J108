@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>J108 ERP ｜ 專業教學與安全版</title>
+    <title>J108 ERP ｜ 複製解鎖安全版</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
         :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --success: #2ecc71; --brown: #795548; --accent: #fbc02d; }
@@ -11,34 +11,28 @@
         body { font-family: "KaiTi", "標楷體", serif; background: var(--paper); color: var(--ink); margin: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
         .scroll-area { flex: 1; overflow-y: auto; padding: 15px; box-sizing: border-box; }
 
-        /* 首頁角色選擇 */
         #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 20px; }
-        .role-btn { width: 85%; max-width: 300px; padding: 20px; font-size: 1.5rem; cursor: pointer; border: 4px double var(--ink); background: white; font-family: inherit; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s; }
-        .role-btn:active { transform: scale(0.95); }
+        .role-btn { width: 85%; max-width: 300px; padding: 20px; font-size: 1.5rem; cursor: pointer; border: 4px double var(--ink); background: white; font-family: inherit; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        /* 導覽列 */
         nav { background: var(--ink); padding: 10px; display: none; justify-content: center; gap: 8px; flex-wrap: wrap; z-index: 100; }
         nav button { background: rgba(255,255,255,0.1); border: 1px solid white; color: white; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; }
 
-        /* 使用教學卡片 */
-        .tutorial-card { background: var(--accent); color: #5d4037; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #f9a825; box-shadow: 0 4px 0 #f9a825; }
-        .tutorial-card h4 { margin: 0 0 10px 0; font-size: 1.1rem; }
-        .tutorial-card ol { margin: 0; padding-left: 20px; font-size: 0.95rem; }
-
-        /* 卡片系統 */
+        .tutorial-card { background: var(--accent); color: #5d4037; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #f9a825; }
         .card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.06); border: 1px solid #eee; }
         .lookup-result-card { border-top: 6px solid var(--brown); }
         
         input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; font-size: 1rem; margin-bottom: 10px; box-sizing: border-box; }
         .btn-main { background: var(--ink); color: white; padding: 16px; border: none; cursor: pointer; font-family: inherit; border-radius: 10px; width: 100%; font-size: 1.2rem; font-weight: bold; }
+        .btn-main:disabled { background: #ccc; cursor: not-allowed; }
 
         .product-row { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .b-check { width: 32px; height: 32px; margin-right: 12px; accent-color: var(--ink); }
+        .b-check { width: 32px; height: 32px; margin-right: 12px; }
 
-        /* 彈窗 UI */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
         .modal-box { background: var(--paper); padding: 25px; border: 6px double var(--ink); width: 85%; max-width: 360px; text-align: center; }
         .random-code-display { font-size: 2.2rem; font-weight: bold; color: var(--danger); letter-spacing: 2px; margin: 15px 0; border: 2px dashed #ccc; padding: 10px; background: #fff; }
+        
+        .copy-btn { background: var(--brown); color: white; border: none; padding: 10px; border-radius: 5px; margin-bottom: 10px; cursor: pointer; font-family: inherit; width: 100%; }
     </style>
 </head>
 <body>
@@ -47,7 +41,7 @@
     <h1 style="font-size: 3.5rem; margin: 0; letter-spacing: 5px;">J108</h1>
     <button class="role-btn" onclick="window.enterBuyer()">🛍️ 我要下單</button>
     <button class="role-btn" onclick="window.enterBuyerLookup()">🔍 憑碼查訂單</button>
-    <button class="role-btn" style="border-style: solid; font-size: 1rem; padding: 10px;" onclick="window.openAdminLogin()">⚙️ 管理員登入</button>
+    <button class="role-btn" style="font-size: 1rem; padding: 10px;" onclick="window.openAdminLogin()">⚙️ 管理員登入</button>
 </div>
 
 <nav id="admin-nav">
@@ -58,27 +52,12 @@
 </nav>
 
 <div class="scroll-area" id="app-container" style="display:none;">
-    
     <div id="buyer-page" class="section">
         <button onclick="location.reload()" style="background:none; border:none; color:var(--brown); margin-bottom:10px;">⬅ 返回</button>
-        
-        <div class="tutorial-card">
-            <h4>📖 新手下單教學</h4>
-            <ol>
-                <li>填寫您的 <b>年級、班級、座號</b> 與 <b>姓名</b>。</li>
-                <li>在下方列表 <b>勾選</b> 您要買的商品。</li>
-                <li>點擊最下方 <b>「確認送出」</b>。</li>
-                <li><b>⚠️ 重要：</b> 送出後請務必「截圖」保存發票上的隨機碼！</li>
-            </ol>
-        </div>
-
+        <div class="tutorial-card"><h4>📖 下單步驟</h4><ol><li>選年級班級座號/姓名</li><li>勾選商品</li><li>點擊送出並<b>複製/截圖隨機碼</b></li></ol></div>
         <h2>🖋️ 填寫訂單</h2>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <select id="b-grade">
-                <option value="" disabled selected>年級</option>
-                <option value="國一">國一</option><option value="國二">國二</option><option value="國三">國三</option>
-                <option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option>
-            </select>
+            <select id="b-grade"><option value="" disabled selected>年級</option><option value="國一">國一</option><option value="國二">國二</option><option value="國三">國三</option><option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option></select>
             <select id="b-class"><option value="" disabled selected>班級</option></select>
             <select id="b-no" style="grid-column: span 2;"><option value="" disabled selected>座號</option></select>
         </div>
@@ -89,37 +68,18 @@
 
     <div id="buyer-lookup" class="section">
         <button onclick="location.reload()" style="background:none; border:none; color:var(--brown); margin-bottom:10px;">⬅ 返回</button>
-        
-        <div class="tutorial-card" style="background:#e3f2fd; border-color:#2196f3; box-shadow: 0 4px 0 #2196f3; color:#0d47a1;">
-            <h4>🔍 查詢教學</h4>
-            <p>請輸入您下單成功時截圖上的 <b>@隨機碼</b>。若遺失碼將無法查詢與領貨。</p>
-        </div>
-
         <h2>🔍 憑碼查詢</h2>
-        <input type="text" id="lookup-code" placeholder="輸入截圖上的 @隨機碼" oninput="window.renderBuyerLookup()">
-        <div id="lookup-cards" style="margin-top:20px;"></div>
+        <input type="text" id="lookup-code" placeholder="輸入 @隨機碼" oninput="window.renderBuyerLookup()">
+        <div id="lookup-cards"></div>
     </div>
 
     <div id="admin-orders" class="section"><h2>📋 訂單總管</h2><div id="admin-order-cards"></div></div>
-    
     <div id="admin-products" class="section">
-        <h2>⚙️ 修改商品參數</h2>
-        <div class="card" style="background:#eee;">
-            <p><b>➕ 新增商品：</b></p>
-            <input type="text" id="p-name" placeholder="名稱">
-            <input type="number" id="p-price" placeholder="單價">
-            <input type="number" id="p-stock" placeholder="庫存">
-            <button class="btn-main" onclick="window.addProduct()">確認新增</button>
-        </div>
+        <h2>⚙️ 修改參數</h2>
+        <div class="card" style="background:#eee;"><p><b>➕ 新增商品</b></p><input type="text" id="p-name" placeholder="名稱"><input type="number" id="p-price" placeholder="單價"><input type="number" id="p-stock" placeholder="庫存"><button class="btn-main" onclick="window.addProduct()">確認新增</button></div>
         <div id="admin-product-cards"></div>
     </div>
-
-    <div id="admin-users" class="section">
-        <h2>👤 管理員帳號安全</h2>
-        <input type="text" id="new-admin-pass" placeholder="輸入新密碼代碼">
-        <button class="btn-main" onclick="window.addAdmin()">新增代碼</button>
-        <div id="admin-list-cards" style="margin-top:20px;"></div>
-    </div>
+    <div id="admin-users" class="section"><h2>👤 帳號密碼</h2><input type="text" id="new-admin-pass" placeholder="新代碼"><button class="btn-main" onclick="window.addAdmin()">新增</button><div id="admin-list-cards" style="margin-top:20px;"></div></div>
 </div>
 
 <div id="ticket-modal" class="custom-modal">
@@ -127,10 +87,13 @@
         <h3>🧾 訂購憑證</h3>
         <p id="t-buyer" style="border-bottom: 1px dashed #ccc; padding-bottom:10px;"></p>
         <div style="background:#fff3cd; padding:15px; border-radius:10px;">
-            <p style="margin:0; font-size:0.9rem; font-weight:bold; color:#856404;">🔑 隨機防偽碼：</p>
+            <p style="margin:0; font-size:0.9rem; font-weight:bold; color:#856404;">🔑 簽收隨機碼：</p>
             <div class="random-code-display" id="t-random"></div>
+            <button class="copy-btn" id="copy-action-btn" onclick="window.copyCode()">點此複製隨機碼</button>
         </div>
-        <button class="btn-main" style="margin-top:20px;" onclick="location.reload()">我已截圖</button>
+        <p id="copy-status" style="color:var(--success); font-weight:bold; margin-top:5px; display:none;">✅ 已複製到剪貼簿！</p>
+        <p style="color:red; font-size:0.8rem; margin-top:10px;">⚠️ <b>請先點擊複製</b>，才能關閉此視窗。</p>
+        <button class="btn-main" id="ticket-close-btn" style="margin-top:10px;" onclick="location.reload()" disabled>我已截圖/複製</button>
     </div>
 </div>
 
@@ -140,10 +103,11 @@
         <p>請輸入您的 <b>隨機代碼</b>：</p>
         <input type="text" id="verify-input" placeholder="@××××××" style="text-align:center; font-size:1.6rem;">
         <button class="btn-main" id="confirm-verify-btn">確認簽收</button>
+        <button class="btn-main" style="background:#888; margin-top:10px;" onclick="document.getElementById('verify-modal').style.display='none'">取消</button>
     </div>
 </div>
 
-<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理驗證</h3><input type="password" id="admin-pass-input" placeholder="代碼"><div style="display:flex; gap:10px; margin-top:15px;"><button class="btn-main" onclick="window.processAdminLogin()">登入</button><button class="btn-main" style="background:#888;" onclick="window.closeLogin()">取消</button></div></div></div>
+<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理員驗證</h3><input type="password" id="admin-pass-input" placeholder="口令"><div style="display:flex; gap:10px; margin-top:15px;"><button class="btn-main" onclick="window.processAdminLogin()">進入</button><button class="btn-main" style="background:#888;" onclick="window.closeLogin()">取消</button></div></div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -182,7 +146,7 @@
             document.getElementById('admin-nav').style.display = 'flex'; 
             window.showSection('admin-orders'); 
             initAdminFunctions(); 
-        } else { alert("驗證失敗"); }
+        } else { alert("口令錯誤"); }
     };
 
     function initAdminFunctions() {
@@ -191,17 +155,13 @@
             if(n && p && s) push(ref(db, 'products'), { name: n, price: parseInt(p), stock: parseInt(s) });
         };
         window.updateP = (id) => {
-            const name = document.getElementById(`edit-n-${id}`).value;
-            const price = parseInt(document.getElementById(`edit-p-${id}`).value);
-            const stock = parseInt(document.getElementById(`edit-s-${id}`).value);
-            update(ref(db, `products/${id}`), { name, price, stock }).then(() => alert("已更新"));
+            const n = document.getElementById(`edit-n-${id}`).value, p = parseInt(document.getElementById(`edit-p-${id}`).value), s = parseInt(document.getElementById(`edit-s-${id}`).value);
+            update(ref(db, `products/${id}`), { name: n, price: p, stock: s }).then(() => alert("已更新"));
         };
         window.upSt = (id, k, v) => {
             const order = orders.find(o => o.id === id);
             if (k === 'shipStatus' && (v === '已完成' || v === '配送中')) {
-                if (!order.isPaid) {
-                    if (!confirm(`⚠️ 買家尚未付款 ($${order.total})\n確定要強行切換狀態嗎？`)) return;
-                }
+                if (!order.isPaid) { if (!confirm(`⚠️ 買家未付款！確定強行切換嗎？`)) return; }
             }
             update(ref(db, `orders/${id}`), { [k]: (k === 'isPaid' ? !v : v) });
         };
@@ -226,34 +186,41 @@
 
     function renderBuyerItems() {
         document.getElementById('buyer-item-list').innerHTML = products.map((p, i) => `
-            <div class="product-row" onclick="const ck=this.querySelector('.b-check'); if(!ck.disabled) ck.checked=!ck.checked;">
+            <div class="product-row" onclick="const ck=this.querySelector('.b-check'); if(!chk.disabled) ck.checked=!ck.checked;">
                 <input type="checkbox" class="b-check" onclick="event.stopPropagation();" ${p.stock <= 0 ? 'disabled' : ''}>
                 <div style="flex:1;"><b>${p.name}</b> ($${p.price})<br><small>庫存: ${p.stock}</small></div>
-                <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" onclick="event.stopPropagation();" style="width:50px;">
+                <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" onclick="event.stopPropagation();" style="width:45px;">
             </div>
         `).join('');
     }
 
+    // --- 🏆 核心新功能：複製隨機碼並解鎖 ---
+    window.copyCode = () => {
+        const codeText = document.getElementById('t-random').innerText;
+        navigator.clipboard.writeText(codeText).then(() => {
+            document.getElementById('copy-status').style.display = 'block';
+            document.getElementById('ticket-close-btn').disabled = false; // 解鎖關閉按鈕
+            document.getElementById('copy-action-btn').innerText = "✅ 已複製成功";
+            document.getElementById('copy-action-btn').style.background = "#27ae60";
+        });
+    };
+
     window.submitOrder = () => {
-        const name = document.getElementById('b-name').value;
-        if(!name || !document.getElementById('b-grade').value) return alert("資料未填完");
+        const name = document.getElementById('b-name').value, grade = document.getElementById('b-grade').value;
+        if(!name || !grade) return alert("資料不全");
         let details = [], total = 0, updates = {};
         const checks = document.querySelectorAll('.b-check'), qtys = document.querySelectorAll('.b-qty');
-        checks.forEach((ck, i) => {
-            if(ck.checked) {
-                const q = parseInt(qtys[i].value), p = products[i];
-                details.push(`${p.name}x${q}`); total += p.price * q;
-                updates[`products/${p.id}/stock`] = p.stock - q;
-            }
-        });
+        checks.forEach((ck, i) => { if(ck.checked) { const q = parseInt(qtys[i].value), p = products[i]; details.push(`${p.name}x${q}`); total += p.price * q; updates[`products/${p.id}/stock`] = p.stock - q; } });
         if(details.length === 0) return alert("未選商品");
         const rand = "@" + Math.floor(100000 + Math.random() * 900000);
         update(ref(db), updates).then(() => {
-            const info = `${document.getElementById('b-grade').value} ${document.getElementById('b-class').value}班 ${document.getElementById('b-no').value}號`;
+            const info = `${grade} ${document.getElementById('b-class').value}班 ${document.getElementById('b-no').value}號`;
             push(ref(db, 'orders'), { ts: new Date().toLocaleString(), buyer: name, detail: details.join(", "), total, isPaid: false, shipStatus: "待配送", randCode: rand }).then(() => {
                 document.getElementById('t-buyer').innerText = `${name} (${info})`;
                 document.getElementById('t-random').innerText = rand;
                 document.getElementById('ticket-modal').style.display = 'flex';
+                // 確保初始狀態是鎖定的
+                document.getElementById('ticket-close-btn').disabled = true;
             });
         });
     };
@@ -268,7 +235,7 @@
                 <div style="float:right; font-weight:bold;">${o.isPaid ? '✅已收錢' : '❌待付款'}</div>
                 <h3 style="color:var(--danger); margin:0;">狀態：${o.shipStatus}</h3>
                 <p><b>內容：</b>${o.detail}</p><p><b>金額：</b>$${o.total}</p>
-                ${o.shipStatus.includes("中") || o.shipStatus === "已完成" ? `<button onclick="window.openVerify('${o.id}', '${o.randCode}')" style="background:var(--success); color:white; border:none; padding:15px; border-radius:10px; width:100%; margin-top:10px; font-weight:bold;">✅ 點此簽收領貨</button>` : ""}
+                ${o.shipStatus.includes("中") || o.shipStatus === "已完成" ? `<button onclick="window.openVerify('${o.id}', '${o.randCode}')" style="background:var(--success); color:white; border:none; padding:15px; border-radius:10px; width:100%; margin-top:10px; font-weight:bold;">✅ 領貨簽收</button>` : ""}
             </div>
         `).join('') || (code.length >= 7 ? "<p style='text-align:center;'>找不到訂單</p>" : "");
     };
@@ -318,7 +285,7 @@
         document.getElementById('admin-list-cards').innerHTML = admins.map((a, i) => `
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-weight:bold;">管理員密碼</span>
-                <button onclick="window.delD('admins', '${a.id}')" style="background:#888; color:white; border:none; padding:5px; border-radius:4px;">移除權限</button>
+                <button onclick="window.delD('admins', '${a.id}')" style="background:#888; color:white; border:none; padding:5px; border-radius:4px;">移除</button>
             </div>
         `).join('');
     }
