@@ -3,127 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J108 ERP ｜ 職人修復版</title>
+    <title>J108 ERP ｜ 全裝置適配版</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
-        :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; }
-        body { font-family: "KaiTi", "標楷體", serif; background: var(--paper); color: var(--ink); margin: 0; padding-bottom: 50px; }
+        :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --brown: #795548; }
         
-        /* 頁面流向控制 */
-        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 30px; }
-        .role-btn { padding: 15px 30px; font-size: 1.3rem; cursor: pointer; border: 3px double var(--ink); background: white; font-family: inherit; }
+        body { font-family: "KaiTi", "標楷體", serif; background: var(--paper); color: var(--ink); margin: 0; padding: 0; overflow-x: hidden; }
         
-        nav { background: var(--ink); padding: 12px; display: none; justify-content: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
-        nav button { background: rgba(255,255,255,0.1); border: 1px solid white; color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; }
+        /* 響應式佈局：適配手機/平板/電腦 */
+        .container { 
+            width: 95%; 
+            max-width: 1000px; 
+            margin: 10px auto; 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            display: none; 
+            box-sizing: border-box;
+        }
 
-        .container { max-width: 1000px; margin: 20px auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; }
-        .section { display: none; }
-        .section.active { display: block; }
+        @media (min-width: 768px) {
+            .container { margin: 30px auto; padding: 30px; }
+            .info-grid { grid-template-columns: 1fr 1fr 1fr !important; }
+        }
 
-        /* 列表與彈窗 */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        /* 角色選擇頁面 */
+        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 20px; padding: 20px; text-align: center; }
+        .role-btn { width: 100%; max-width: 300px; padding: 20px; font-size: 1.3rem; cursor: pointer; border: 3px double var(--ink); background: white; font-family: inherit; }
+
+        /* 使用教學區 */
+        .tutorial-box { background: #fff9c4; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #fbc02d; font-size: 0.95rem; line-height: 1.6; }
+        .tutorial-box h4 { margin: 0 0 10px 0; color: #f57f17; }
+
+        /* 導覽列 */
+        nav { background: var(--ink); padding: 10px; display: none; justify-content: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
+        nav button { background: rgba(255,255,255,0.1); border: 1px solid white; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
+
+        /* 表格響應式 */
+        .table-wrapper { overflow-x: auto; width: 100%; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 500px; }
         th { background: var(--ink); color: white; padding: 10px; text-align: left; }
         td { padding: 10px; border-bottom: 1px solid #eee; }
+
+        /* 表單元素 */
+        .info-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; box-sizing: border-box; }
+        .btn-main { background: var(--ink); color: white; padding: 12px; border: none; cursor: pointer; font-family: inherit; border-radius: 4px; width: 100%; }
+
+        /* 彈窗 */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { background: var(--paper); padding: 30px; border: 8px double var(--ink); width: 80%; max-width: 350px; text-align: center; }
-        
-        input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
-        .btn-main { background: var(--ink); color: white; padding: 10px 15px; border: none; cursor: pointer; font-family: inherit; }
+        .modal-box { background: var(--paper); padding: 25px; border: 6px double var(--ink); width: 85%; max-width: 350px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div id="role-select">
-    <h1 style="font-size: 3rem;">J108 ERP 系統</h1>
-    <div style="display: flex; gap: 20px;">
-        <button class="role-btn" onclick="enterApp('buyer')">🛍️ 買家進入</button>
-        <button class="role-btn" onclick="openAdminLogin()">⚙️ 管理登入</button>
-    </div>
-</div>
-
-<div id="login-modal" class="custom-modal">
-    <div class="modal-box">
-        <h3>管理員驗證</h3>
-        <input type="password" id="admin-pass-input" placeholder="請輸入口令">
-        <div style="margin-top:20px;">
-            <button class="btn-main" onclick="processAdminLogin()">登入</button>
-            <button class="btn-main" style="background:#888;" onclick="closeLogin()">取消</button>
-        </div>
-    </div>
-</div>
-
-<div id="msg-modal" class="custom-modal">
-    <div class="modal-box">
-        <h3 id="msg-title">提示</h3>
-        <p id="msg-text"></p>
-        <button class="btn-main" onclick="closeMsg()">確定</button>
-    </div>
+    <h1 style="font-size: 2.5rem; margin: 0;">J108 ERP 系統</h1>
+    <p style="color: #6d4c41;">專業、即時、雲端管理</p>
+    <button class="role-btn" onclick="enterApp('buyer')">🛍️ 買家進入</button>
+    <button class="role-btn" onclick="openAdminLogin()">⚙️ 管理登入</button>
 </div>
 
 <nav id="admin-nav">
     <button onclick="showSection('admin-orders')">📋 訂單管理</button>
     <button onclick="showSection('admin-products')">⚙️ 庫存設定</button>
     <button onclick="showSection('admin-users')">👤 帳號管理</button>
-    <button onclick="location.reload()" style="background:red;">🚪 登出</button>
+    <button onclick="location.reload()" style="background:#b71c1c;">🚪 登出</button>
 </nav>
 
 <div class="container" id="buyer-app">
     <div id="buyer-order-form" class="section active">
+        <div class="tutorial-box">
+            <h4>📖 新手使用教學</h4>
+            1. 填寫您的 <b>年級、班級、座號</b> 與 <b>姓名</b>。<br>
+            2. 在清單中 <b>勾選</b> 想購買的商品並輸入數量。<br>
+            3. 點擊「確認送出」，看到提示即代表成功。<br>
+            4. 之後可點擊下方「查詢訂單」確認配送進度！
+        </div>
+
         <h2>🖋️ 填寫訂購單</h2>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:15px;">
+        <div class="info-grid">
             <input type="text" id="b-grade" placeholder="年級">
             <input type="text" id="b-class" placeholder="班級">
             <input type="number" id="b-no" placeholder="座號">
         </div>
-        <input type="text" id="b-name" placeholder="買家姓名" style="width:100%; margin-bottom:15px;">
-        <div id="buyer-item-list" style="border:1px solid #eee; padding:10px; background:#fafafa;">載入雲端中...</div>
-        <button class="btn-main" style="width:100%; margin-top:20px; font-size:1.2rem;" onclick="submitOrder()">提交訂單 🚀</button>
-        <button class="btn-main" style="background:#795548; margin-top:10px; width:100%;" onclick="showSection('buyer-lookup')">🔍 查詢訂單狀態</button>
+        <input type="text" id="b-name" placeholder="買家姓名" style="margin-bottom: 15px;">
+        <div id="buyer-item-list" style="border:1px solid #ddd; padding:10px; background:#fafafa; border-radius:5px;">載入商品中...</div>
+        <button class="btn-main" style="margin-top:20px; font-size:1.3rem;" onclick="submitOrder()">確認送出 🚀</button>
+        <button class="btn-main" style="background:var(--brown); margin-top:10px;" onclick="showSection('buyer-lookup')">🔍 查詢訂單進度</button>
     </div>
 
     <div id="buyer-lookup" class="section">
-        <h2>🔍 查詢我的訂單</h2>
-        <input type="text" id="lookup-key" placeholder="輸入姓名..." oninput="lookupOrder()">
-        <button onclick="showSection('buyer-order-form')">返回</button>
-        <table id="lookup-table">
-            <thead><tr><th>內容</th><th>金額</th><th>付款</th><th>配送</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <h2>🔍 我的訂單狀態</h2>
+        <div style="display:flex; gap:5px; margin-bottom:15px;">
+            <input type="text" id="lookup-key" placeholder="輸入您的姓名查詢..." oninput="lookupOrder()">
+            <button class="btn-main" style="width:auto;" onclick="showSection('buyer-order-form')">返回</button>
+        </div>
+        <div class="table-wrapper">
+            <table id="lookup-table">
+                <thead><tr><th>內容</th><th>金額</th><th>付款</th><th>配送</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <div class="container" id="admin-app">
     <div id="admin-orders" class="section active">
-        <h2>📋 訂單管理</h2>
-        <table>
-            <thead><tr><th>付款</th><th>配送</th><th>買家</th><th>內容</th><th>管理</th></tr></thead>
-            <tbody id="admin-order-table"></tbody>
-        </table>
+        <h2>📋 訂單總覽</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>付款</th><th>配送</th><th>買家</th><th>內容</th><th>操作</th></tr></thead>
+                <tbody id="admin-order-table"></tbody>
+            </table>
+        </div>
     </div>
 
     <div id="admin-products" class="section">
         <h2>⚙️ 庫存設定</h2>
-        <div style="display:flex; gap:5px; margin-bottom:15px;">
-            <input type="text" id="p-name" placeholder="名稱" style="flex:2;">
-            <input type="number" id="p-price" placeholder="價" style="flex:1;">
-            <input type="number" id="p-stock" placeholder="存" style="flex:1;">
-            <button class="btn-main" onclick="addProduct()">上架</button>
+        <div class="info-grid">
+            <input type="text" id="p-name" placeholder="名稱">
+            <input type="number" id="p-price" placeholder="價格">
+            <input type="number" id="p-stock" placeholder="數量">
         </div>
-        <table id="product-table">
-            <thead><tr><th>商品</th><th>單價</th><th>剩餘</th><th>操作</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <button class="btn-main" onclick="addProduct()">上架商品</button>
+        <div class="table-wrapper">
+            <table id="product-table">
+                <thead><tr><th>商品</th><th>單價</th><th>剩餘</th><th>操作</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <div id="admin-users" class="section">
-        <h2>👤 管理口令設定</h2>
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="new-admin-pass">
-            <button class="btn-main" onclick="addAdmin()">新增口令</button>
-        </div>
+        <h2>👤 管理帳號</h2>
+        <div style="display:flex; gap:10px;"><input type="text" id="new-admin-pass"><button onclick="addAdmin()">新增</button></div>
         <table id="admin-list-table"><tbody></tbody></table>
     </div>
 </div>
+
+<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理登入</h3><input type="password" id="admin-pass-input" placeholder="@J108"><br><br><button class="btn-main" onclick="processAdminLogin()">進入</button><button class="btn-main" style="background:#888;" onclick="closeLogin()">關閉</button></div></div>
+<div id="msg-modal" class="custom-modal"><div class="modal-box"><h3 id="msg-title">提示</h3><p id="msg-text"></p><button class="btn-main" onclick="closeMsg()">確定</button></div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -144,24 +165,17 @@
     const db = getDatabase(app);
     let products = [], orders = [], admins = [];
 
-    // --- 全域函式綁定 ---
-    window.customAlert = (title, text) => {
-        document.getElementById('msg-title').innerText = title;
-        document.getElementById('msg-text').innerText = text;
-        document.getElementById('msg-modal').style.display = 'flex';
-    };
+    // --- 全域 Function 綁定 ---
+    window.customAlert = (t, txt) => { document.getElementById('msg-title').innerText = t; document.getElementById('msg-text').innerText = txt; document.getElementById('msg-modal').style.display = 'flex'; };
     window.closeMsg = () => document.getElementById('msg-modal').style.display = 'none';
     window.openAdminLogin = () => document.getElementById('login-modal').style.display = 'flex';
     window.closeLogin = () => document.getElementById('login-modal').style.display = 'none';
+    window.showSection = (id) => { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
 
     window.processAdminLogin = () => {
         const pass = document.getElementById('admin-pass-input').value;
-        if (pass === "@J108" || admins.some(a => a.pass === pass)) {
-            window.closeLogin();
-            window.enterApp('admin');
-        } else {
-            window.customAlert("驗證失敗", "口令不正確");
-        }
+        if (pass === "@J108" || admins.some(a => a.pass === pass)) { window.closeLogin(); window.enterApp('admin'); }
+        else { window.customAlert("驗證失敗", "代碼錯誤"); }
     };
 
     window.enterApp = (role) => {
@@ -170,17 +184,11 @@
         if(role === 'admin') document.getElementById('admin-nav').style.display = 'flex';
     };
 
-    window.showSection = (id) => {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    };
-
     // --- 資料同步 ---
     onValue(ref(db, 'products'), s => {
         const val = s.val();
         products = val ? Object.entries(val).map(([id, v]) => ({ id, ...v })) : [];
-        renderBuyerItems();
-        renderAdminProducts();
+        renderBuyerItems(); renderAdminProducts();
     });
 
     onValue(ref(db, 'orders'), s => {
@@ -195,11 +203,10 @@
         renderAdminList();
     });
 
-    // --- 買家邏輯 ---
+    // --- 買家功能 ---
     function renderBuyerItems() {
-        const list = document.getElementById('buyer-item-list');
-        list.innerHTML = products.map((p, i) => `
-            <div style="display:flex; align-items:center; padding:8px; border-bottom:1px solid #eee;">
+        document.getElementById('buyer-item-list').innerHTML = products.map((p, i) => `
+            <div style="display:flex; align-items:center; padding:10px; border-bottom:1px solid #eee;">
                 <input type="checkbox" class="b-check" ${p.stock <= 0 ? 'disabled' : ''}>
                 <div style="flex:1; margin-left:10px;"><b>${p.name}</b> ($${p.price}) <small style="color:brown;">(餘${p.stock})</small></div>
                 <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" style="width:45px;">
@@ -210,88 +217,50 @@
     window.submitOrder = () => {
         const name = document.getElementById('b-name').value;
         let details = [], total = 0, updates = {};
-        const checks = document.querySelectorAll('.b-check');
-        const qtys = document.querySelectorAll('.b-qty');
-
+        const checks = document.querySelectorAll('.b-check'), qtys = document.querySelectorAll('.b-qty');
         checks.forEach((ck, i) => {
             if(ck.checked) {
-                const qty = parseInt(qtys[i].value);
-                const p = products[i];
+                const qty = parseInt(qtys[i].value), p = products[i];
                 if(qty > p.stock) return window.customAlert("庫存不足", p.name);
-                details.push(`${p.name}x${qty}`);
-                total += p.price * qty;
+                details.push(`${p.name}x${qty}`); total += p.price * qty;
                 updates[`products/${p.id}/stock`] = p.stock - qty;
             }
         });
-
         if(!name || details.length === 0) return window.customAlert("提示", "請填寫完整");
-
         update(ref(db), updates).then(() => {
             push(ref(db, 'orders'), {
-                ts: new Date().toLocaleString(),
-                buyer: name,
+                ts: new Date().toLocaleString(), buyer: name,
                 info: `${document.getElementById('b-grade').value}-${document.getElementById('b-class').value}-${document.getElementById('b-no').value}`,
-                detail: details.join(", "),
-                total: total, isPaid: false, shipStatus: "待配送"
-            }).then(() => {
-                window.customAlert("成功", "訂單已送出");
-                setTimeout(()=>location.reload(), 1500);
-            });
+                detail: details.join(", "), total, isPaid: false, shipStatus: "待配送"
+            }).then(() => { window.customAlert("成功", "訂單已送出"); setTimeout(()=>location.reload(), 1500); });
         });
     };
 
     window.lookupOrder = () => {
         const key = document.getElementById('lookup-key').value.toLowerCase();
         document.querySelector('#lookup-table tbody').innerHTML = orders.filter(o => o.buyer.toLowerCase().includes(key)).reverse().map(o => `
-            <tr><td>${o.detail}</td><td>$${o.total}</td><td>${o.isPaid?'已付':'未付'}</td><td>${o.shipStatus}</td></tr>
+            <tr><td><small>${o.detail}</small></td><td>$${o.total}</td><td>${o.isPaid?'已付':'未付'}</td><td>${o.shipStatus}</td></tr>
         `).join('');
     };
 
-    // --- 管理員邏輯 ---
+    // --- 管理員功能 ---
     function renderAdminOrders() {
-        const tb = document.getElementById('admin-order-table');
-        tb.innerHTML = orders.slice().reverse().map(o => `
+        document.getElementById('admin-order-table').innerHTML = orders.slice().reverse().map(o => `
             <tr>
                 <td><button onclick="window.updateStatus('${o.id}', 'isPaid', ${o.isPaid})">${o.isPaid?'✅':'❌'}</button></td>
-                <td>
-                    <select onchange="window.updateStatus('${o.id}', 'shipStatus', this.value)">
-                        <option value="待配送" ${o.shipStatus=='待配送'?'selected':''}>待配送</option>
-                        <option value="配送中" ${o.shipStatus=='配送中'?'selected':''}>配送中</option>
-                        <option value="已完成" ${o.shipStatus=='已完成'?'selected':''}>已完成</option>
-                        <option value="退款" ${o.shipStatus=='退款'?'selected':''}>退款</option>
-                    </select>
-                </td>
+                <td><select onchange="window.updateStatus('${o.id}', 'shipStatus', this.value)"><option value="待配送" ${o.shipStatus=='待配送'?'selected':''}>待配送</option><option value="配送中" ${o.shipStatus=='配送中'?'selected':''}>配送中</option><option value="已完成" ${o.shipStatus=='已完成'?'selected':''}>已完成</option><option value="退款" ${o.shipStatus=='退款'?'selected':''}>退款</option></select></td>
                 <td><b>${o.buyer}</b><br><small>${o.info}</small></td>
                 <td><small>${o.detail}</small></td>
                 <td><button onclick="window.delData('orders', '${o.id}')">刪</button></td>
             </tr>
         `).join('');
     }
-
     window.updateStatus = (id, k, v) => update(ref(db, `orders/${id}`), { [k]: (k === 'isPaid' ? !v : v) });
-
-    window.addProduct = () => {
-        const n = document.getElementById('p-name').value, p = document.getElementById('p-price').value, s = document.getElementById('p-stock').value;
-        if(n && p && s) push(ref(db, 'products'), { name: n, price: parseInt(p), stock: parseInt(s) });
-    };
-
-    function renderAdminProducts() {
-        document.querySelector('#product-table tbody').innerHTML = products.map(p => `
-            <tr><td>${p.name}</td><td>$${p.price}</td><td>${p.stock}</td><td><button onclick="window.delData('products', '${p.id}')">刪</button></td></tr>
-        `).join('');
-    }
-
-    window.addAdmin = () => {
-        const v = document.getElementById('new-admin-pass').value;
-        if(v) push(ref(db, 'admins'), { pass: v }).then(()=>document.getElementById('new-admin-pass').value='');
-    };
-
-    function renderAdminList() {
-        document.querySelector('#admin-list-table tbody').innerHTML = admins.map(a => `<tr><td>${a.pass}</td><td><button onclick="window.delData('admins', '${a.id}')">刪</button></td></tr>`).join('');
-    }
-
+    window.addProduct = () => { const n = document.getElementById('p-name').value, p = document.getElementById('p-price').value, s = document.getElementById('p-stock').value; if(n && p && s) push(ref(db, 'products'), { name: n, price: parseInt(p), stock: parseInt(s) }); };
+    function renderAdminProducts() { document.querySelector('#product-table tbody').innerHTML = products.map(p => `<tr><td>${p.name}</td><td>$${p.price}</td><td>${p.stock}</td><td><button onclick="window.delData('products', '${p.id}')">刪</button></td></tr>`).join(''); }
+    window.addAdmin = () => { const v = document.getElementById('new-admin-pass').value; if(v) push(ref(db, 'admins'), { pass: v }).then(()=>document.getElementById('new-admin-pass').value=''); };
+    function renderAdminList() { document.querySelector('#admin-list-table tbody').innerHTML = admins.map(a => `<tr><td>${a.pass}</td><td><button onclick="window.delData('admins', '${a.id}')">刪</button></td></tr>`).join(''); }
     window.delData = (path, id) => { if(confirm("確定刪除？")) remove(ref(db, `${path}/${id}`)); };
-
 </script>
 </body>
 </html>
