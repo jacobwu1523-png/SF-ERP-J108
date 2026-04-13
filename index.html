@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>J108 ERP ｜ 隱私安全版</title>
+    <title>J108 ERP ｜ 權限隔離版</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
         :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --success: #2ecc71; }
@@ -15,12 +15,14 @@
         #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 25px; }
         .role-btn { width: 80%; max-width: 300px; padding: 20px; font-size: 1.4rem; cursor: pointer; border: 4px double var(--ink); background: white; font-family: inherit; }
 
-        /* 導覽列 (僅管理員可見) */
+        /* 導覽列 (管理員專用) */
         nav { background: var(--ink); padding: 10px; display: none; justify-content: center; gap: 8px; flex-wrap: wrap; z-index: 100; }
         nav button { background: rgba(255,255,255,0.1); border: 1px solid white; color: white; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
 
-        /* 卡片與輸入 */
+        /* 卡片設計 */
         .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        .buyer-card { border-left: 5px solid var(--ink); }
+        
         input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; font-size: 1rem; margin-bottom: 10px; box-sizing: border-box; }
         .btn-main { background: var(--ink); color: white; padding: 15px; border: none; cursor: pointer; font-family: inherit; border-radius: 8px; width: 100%; font-size: 1.1rem; font-weight: bold; }
 
@@ -45,7 +47,7 @@
 
 <nav id="admin-nav">
     <button onclick="window.showSection('admin-orders')">📋 訂單管理</button>
-    <button onclick="window.showSection('admin-products')">⚙️ 商品參數</button>
+    <button onclick="window.showSection('admin-products')">⚙️ 參數修改</button>
     <button onclick="window.showSection('admin-users')">👤 帳號設定</button>
     <button onclick="location.reload()" style="background:#b71c1c;">🚪 登出</button>
 </nav>
@@ -63,28 +65,39 @@
             <select id="b-no" style="grid-column: span 2;"><option value="" disabled selected>座號</option></select>
         </div>
         <input type="text" id="b-name" placeholder="您的真實姓名">
-        <div id="buyer-item-list" style="background:#fff; border:1px solid #ddd; border-radius:8px;">載入商品中...</div>
+        <label style="font-weight:bold; margin: 10px 0; display:block;">🛒 勾選商品：</label>
+        <div id="buyer-item-list" style="background:#fff; border:1px solid #ddd; border-radius:8px;"></div>
         <button class="btn-main" style="margin-top:20px;" onclick="window.submitOrder()">確認送出 🚀</button>
-        <button class="btn-main" style="background:#795548; margin-top:10px;" onclick="window.showSection('buyer-lookup')">🔍 用隨機碼查訂單</button>
+        <button class="btn-main" style="background:#795548; margin-top:10px;" onclick="window.showSection('buyer-lookup')">🔍 憑隨機碼查訂單</button>
     </div>
 
     <div id="buyer-lookup" class="section">
-        <h2>🔍 憑隨機碼查詢</h2>
-        <p style="font-size: 0.9rem; color: #666;">請輸入訂單截圖上的 @隨機碼：</p>
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <input type="text" id="lookup-code" placeholder="@××××××" oninput="window.renderBuyerLookup()">
-            <button class="btn-main" style="width:80px; padding:10px; background:#888;" onclick="window.showSection('buyer-page')">返回</button>
-        </div>
-        <div id="lookup-cards"></div>
+        <h2>🔍 查詢訂單</h2>
+        <input type="text" id="lookup-code" placeholder="請輸入 @隨機碼" oninput="window.renderBuyerLookup()">
+        <button class="btn-main" style="background:#888;" onclick="window.showSection('buyer-page')">返回</button>
+        <div id="lookup-cards" style="margin-top:15px;"></div>
     </div>
 
     <div id="admin-orders" class="section"><h2>📋 訂單總管</h2><div id="admin-order-cards"></div></div>
+    
     <div id="admin-products" class="section">
-        <h2>⚙️ 參數修改</h2>
-        <div class="card" style="background:#eee;"><input type="text" id="p-name" placeholder="名稱"><input type="number" id="p-price" placeholder="價"><input type="number" id="p-stock" placeholder="存"><button class="btn-main" onclick="window.addProduct()">新增</button></div>
+        <h2>⚙️ 修改商品參數</h2>
+        <div class="card" style="background:#eee;">
+            <p><b>➕ 新增物品</b></p>
+            <input type="text" id="p-name" placeholder="名稱">
+            <input type="number" id="p-price" placeholder="單價">
+            <input type="number" id="p-stock" placeholder="庫存">
+            <button class="btn-main" onclick="window.addProduct()">確認新增</button>
+        </div>
         <div id="admin-product-cards"></div>
     </div>
-    <div id="admin-users" class="section"><h2>👤 帳號設定</h2><input type="text" id="new-admin-pass" placeholder="新代碼"><button class="btn-main" onclick="window.addAdmin()">新增</button><div id="admin-list-cards" style="margin-top:20px;"></div></div>
+
+    <div id="admin-users" class="section">
+        <h2>👤 管理帳號設定</h2>
+        <input type="text" id="new-admin-pass" placeholder="新代碼">
+        <button class="btn-main" onclick="window.addAdmin()">新增口令</button>
+        <div id="admin-list-cards" style="margin-top:20px;"></div>
+    </div>
 </div>
 
 <div id="ticket-modal" class="custom-modal">
@@ -93,10 +106,10 @@
             <h3>🧾 訂購憑證</h3>
             <p id="t-buyer"></p>
             <div style="background:#fff3cd; padding:10px;">
-                <p style="margin:0; font-size:0.8rem; font-weight:bold;">🔑 查詢與簽收唯一碼：</p>
+                <p style="margin:0; font-size:0.8rem; font-weight:bold;">🔑 隨機防偽碼：</p>
                 <div class="random-code" id="t-random"></div>
             </div>
-            <p style="color:red; font-size:0.8rem;">請務必截圖！遺失隨機碼將無法查詢與領貨。</p>
+            <p style="color:red; font-size:0.8rem;">請務必截圖！此碼用於查詢與簽收。</p>
         </div>
         <button class="btn-main" style="margin-top:15px;" onclick="location.reload()">我已截圖</button>
     </div>
@@ -104,15 +117,15 @@
 
 <div id="verify-modal" class="custom-modal">
     <div class="modal-box">
-        <h3>📦 確認領取商品</h3>
-        <p>請輸入您的 <b>隨機代碼</b> 進行簽收：</p>
+        <h3>📦 確認簽收</h3>
+        <p>請輸入您的 <b>隨機代碼</b>：</p>
         <input type="text" id="verify-input" placeholder="@××××××" style="text-align:center; font-size:1.5rem;">
         <button class="btn-main" id="confirm-verify-btn">確認簽收</button>
         <button class="btn-main" style="background:#888; margin-top:10px;" onclick="document.getElementById('verify-modal').style.display='none'">取消</button>
     </div>
 </div>
 
-<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理權限驗證</h3><input type="password" id="admin-pass-input" placeholder="代碼"><br><br><button class="btn-main" onclick="window.processAdminLogin()">登入</button><button class="btn-main" style="background:#888;" onclick="window.closeLogin()">取消</button></div></div>
+<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理登入</h3><input type="password" id="admin-pass-input" placeholder="代碼"><br><br><button class="btn-main" onclick="window.processAdminLogin()">登入</button><button class="btn-main" style="background:#888;" onclick="window.closeLogin()">取消</button></div></div>
 <div id="msg-modal" class="custom-modal"><div class="modal-box"><h3 id="msg-title"></h3><p id="msg-text"></p><button class="btn-main" onclick="window.closeMsg()">確定</button></div></div>
 
 <script type="module">
@@ -151,7 +164,7 @@
     window.processAdminLogin = () => {
         const p = document.getElementById('admin-pass-input').value;
         if (p === "@J108" || admins.some(a => a.pass === p)) { window.closeLogin(); window.enterApp('admin'); }
-        else { window.customAlert("失敗", "口令代碼無效"); }
+        else { window.customAlert("失敗", "驗證代碼錯誤"); }
     };
 
     onValue(ref(db, 'products'), s => {
@@ -167,14 +180,15 @@
         renderAdminList();
     });
 
+    // --- 買家：純展示清單 ---
     function renderBuyerItems() {
         document.getElementById('buyer-item-list').innerHTML = products.map((p, i) => `
             <div class="product-row" onclick="const ck=this.querySelector('.b-check'); if(!ck.disabled) ck.checked=!ck.checked;">
                 <input type="checkbox" class="b-check" onclick="event.stopPropagation();" ${p.stock <= 0 ? 'disabled' : ''}>
                 <div style="flex:1;"><b>${p.name}</b> ($${p.price})<br><small>庫存: ${p.stock}</small></div>
-                <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" onclick="event.stopPropagation();" style="width:45px; padding:5px;">
+                <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" onclick="event.stopPropagation();" style="width:50px;">
             </div>
-        `).join('');
+        `).join('') || "商品補貨中...";
     }
 
     window.submitOrder = () => {
@@ -186,7 +200,7 @@
         checks.forEach((ck, i) => {
             if(ck.checked) {
                 const q = parseInt(qtys[i].value), p = products[i];
-                if(q > p.stock) return window.customAlert("不足", p.name);
+                if(q > p.stock) return window.customAlert("庫存不足", p.name);
                 details.push(`${p.name}x${q}`); total += p.price * q;
                 updates[`products/${p.id}/stock`] = p.stock - q;
             }
@@ -194,8 +208,7 @@
         if(details.length === 0) return window.customAlert("錯誤", "未選商品");
         const rand = "@" + Math.floor(100000 + Math.random() * 900000);
         update(ref(db), updates).then(() => {
-            const o = { ts: new Date().toLocaleString(), buyer: name, info, detail: details.join(", "), total, isPaid: false, shipStatus: "待配送", randCode: rand };
-            push(ref(db, 'orders'), o).then(() => {
+            push(ref(db, 'orders'), { ts: new Date().toLocaleString(), buyer: name, info, detail: details.join(", "), total, isPaid: false, shipStatus: "待配送", randCode: rand }).then(() => {
                 document.getElementById('t-buyer').innerText = `${name} (${info})`;
                 document.getElementById('t-random').innerText = rand;
                 document.getElementById('ticket-modal').style.display = 'flex';
@@ -207,23 +220,17 @@
         const code = document.getElementById('lookup-code').value.trim();
         const container = document.getElementById('lookup-cards');
         if(!code) { container.innerHTML = ""; return; }
-        
         const matched = orders.filter(o => o.randCode === code);
-        container.innerHTML = matched.map(o => {
-            const isActive = o.shipStatus === "配送中" || o.shipStatus === "已完成";
-            const btnHtml = isActive ? `<button onclick="window.openVerify('${o.id}', '${o.randCode}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:5px; width:100%; margin-top:10px; font-weight:bold;">點此驗證隨機碼簽收</button>` : "";
-            return `
-                <div class="card" style="border: 2px solid var(--ink);">
-                    <div style="float:right;">${o.isPaid ? '✅已付' : '❌未付'}</div>
-                    <h3 style="color:var(--danger);">${o.shipStatus}</h3>
-                    <p><b>買家：</b>${o.buyer}</p>
-                    <p><b>項目：</b>${o.detail}</p>
-                    <p><b>總額：</b>$${o.total}</p>
-                    <p><small>訂單時間：${o.ts}</small></p>
-                    ${btnHtml}
-                </div>
-            `;
-        }).join('') || (code.length >= 7 ? "<p style='text-align:center;'>找不到此隨機碼的訂單</p>" : "");
+        container.innerHTML = matched.map(o => `
+            <div class="card buyer-card">
+                <div style="float:right;">${o.isPaid ? '✅已付' : '❌未付'}</div>
+                <h3 style="color:var(--danger);">${o.shipStatus}</h3>
+                <p><b>買家：</b>${o.buyer}</p>
+                <p><b>項目：</b>${o.detail}</p>
+                <p><b>總額：</b>$${o.total}</p>
+                ${o.shipStatus.includes("中") || o.shipStatus === "已完成" ? `<button onclick="window.openVerify('${o.id}', '${o.randCode}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:5px; width:100%; margin-top:10px; font-weight:bold;">驗證隨機碼簽收</button>` : ""}
+            </div>
+        `).join('') || (code.length >= 7 ? "<p>查無訂單</p>" : "");
     };
 
     window.openVerify = (id, correctCode) => {
@@ -234,19 +241,20 @@
                     window.customAlert("成功", "簽收成功！");
                     document.getElementById('verify-modal').style.display = 'none';
                 });
-            } else { alert("隨機碼錯誤！"); }
+            } else { alert("錯誤！"); }
         };
     };
 
+    // --- 管理員：具備修改權限 ---
     window.renderAdminOrders = () => {
         document.getElementById('admin-order-cards').innerHTML = orders.slice().reverse().map(o => `
             <div class="card">
                 <div style="float:right; text-align:right;">
                     <button onclick="window.upSt('${o.id}', 'isPaid', ${o.isPaid})">${o.isPaid?'✅已付':'❌未付'}</button><br>
-                    <small style="color:red; font-weight:bold;">碼: ${o.randCode}</small>
+                    <small style="color:red; font-weight:bold;">${o.randCode}</small>
                 </div>
                 <h3>${o.buyer} (${o.info})</h3>
-                <p>項目: ${o.detail}</p>
+                <p>內容: ${o.detail}</p>
                 <select onchange="window.upSt('${o.id}', 'shipStatus', this.value)" style="width:auto;">
                     <option value="待配送" ${o.shipStatus=='待配送'?'selected':''}>待配送</option>
                     <option value="配送中" ${o.shipStatus=='配送中'?'selected':''}>配送中</option>
@@ -263,10 +271,11 @@
     window.renderAdminProducts = () => {
         document.getElementById('admin-product-cards').innerHTML = products.map(p => `
             <div class="card">
+                <p><b>修改物品參數：</b></p>
                 <input type="text" id="edit-n-${p.id}" value="${p.name}">
                 <div style="display:flex; gap:5px;"><input type="number" id="edit-p-${p.id}" value="${p.price}" style="flex:1;"><input type="number" id="edit-s-${p.id}" value="${p.stock}" style="flex:1;"></div>
-                <button onclick="window.updateP('${p.id}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:5px; width:48%;">儲存</button>
-                <button onclick="window.delD('products', '${p.id}')" style="background:red; color:white; border:none; padding:10px; border-radius:5px; width:48%;">刪除</button>
+                <button onclick="window.updateP('${p.id}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:5px; width:48%;">💾 儲存</button>
+                <button onclick="window.delD('products', '${p.id}')" style="background:red; color:white; border:none; padding:10px; border-radius:5px; width:48%;">🗑️ 刪除</button>
             </div>
         `).join('');
     };
@@ -275,7 +284,7 @@
         const name = document.getElementById(`edit-n-${id}`).value;
         const price = parseInt(document.getElementById(`edit-p-${id}`).value);
         const stock = parseInt(document.getElementById(`edit-s-${id}`).value);
-        update(ref(db, `products/${id}`), { name, price, stock }).then(() => window.customAlert("成功", "參數已更新"));
+        update(ref(db, `products/${id}`), { name, price, stock }).then(() => window.customAlert("完成", "參數已更新"));
     };
 
     window.addProduct = () => {
@@ -292,7 +301,7 @@
         document.getElementById('admin-list-cards').innerHTML = admins.map((a, i) => `
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-weight:bold;">管理員密碼</span>
-                <button onclick="window.delD('admins', '${a.id}')" style="background:#888; color:white; border:none; padding:5px; border-radius:4px;">移除權限</button>
+                <button onclick="window.delD('admins', '${a.id}')" style="background:#888; color:white; border:none; padding:5px; border-radius:4px;">移除</button>
             </div>
         `).join('');
     };
