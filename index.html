@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>J108 ERP ｜ 嚴格簽收控管版</title>
+    <title>J108 ERP ｜ 核心修復穩定版</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
         :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --success: #2ecc71; --brown: #795548; --accent: #fbc02d; }
@@ -20,6 +20,7 @@
         .card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.06); border: 1px solid #eee; }
         input, select { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; font-size: 1rem; margin-bottom: 10px; box-sizing: border-box; }
         .btn-main { background: var(--ink); color: white; padding: 16px; border: none; cursor: pointer; font-family: inherit; border-radius: 10px; width: 100%; font-size: 1.2rem; font-weight: bold; }
+        .btn-main:disabled { background: #ccc !important; }
         
         .product-row { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
         .b-check { width: 32px; height: 32px; margin-right: 12px; }
@@ -55,18 +56,18 @@
             <select id="b-no" style="grid-column: span 2;"><option value="" disabled selected>座號</option></select>
         </div>
         <input type="text" id="b-name" placeholder="您的真實姓名">
-        <div id="buyer-item-list" style="background:#fff; border:1px solid #ddd; border-radius:10px;"></div>
+        <div id="buyer-item-list" style="background:#fff; border:1px solid #ddd; border-radius:10px;">載入商品中...</div>
         <button class="btn-main" style="margin-top:25px;" onclick="window.submitOrder()">確認送出 🚀</button>
     </div>
 
     <div id="buyer-lookup" class="section">
         <button onclick="location.reload()" style="background:none; border:none; color:var(--brown); margin-bottom:10px;">⬅ 返回</button>
-        <h2>🔍 憑碼查詢狀態</h2>
-        <input type="text" id="lookup-code" placeholder="輸入截圖上的 @隨機碼" oninput="window.renderBuyerLookup()">
+        <h2>🔍 憑碼查詢</h2>
+        <input type="text" id="lookup-code" placeholder="輸入隨機碼 @××××××" oninput="window.renderBuyerLookup()">
         <div id="lookup-cards"></div>
     </div>
 
-    <div id="admin-orders" class="section"><h2>📋 訂單總管</h2><div id="admin-order-cards"></div></div>
+    <div id="admin-orders" class="section"><h2>📋 訂單總管</h2><div id="admin-order-cards">讀取資料中...</div></div>
     <div id="admin-products" class="section">
         <h2>⚙️ 修改參數</h2>
         <div class="card" style="background:#eee;"><input type="text" id="p-name" placeholder="名稱"><input type="number" id="p-price" placeholder="價"><input type="number" id="p-stock" placeholder="存"><button class="btn-main" onclick="window.addProduct()">新增</button></div>
@@ -82,9 +83,9 @@
         <div style="background:#fff3cd; padding:15px; border-radius:10px;">
             <p style="margin:0; font-size:0.9rem; font-weight:bold; color:#856404;">🔑 簽收隨機碼：</p>
             <div class="random-code-display" id="t-random"></div>
-            <button style="background:var(--brown); color:white; border:none; padding:10px; width:100%; border-radius:5px;" onclick="window.copyCode()">複製代碼</button>
+            <button style="background:var(--brown); color:white; border:none; padding:10px; width:100%; border-radius:5px;" onclick="window.copyCode()">點此複製代碼</button>
         </div>
-        <button class="btn-main" id="ticket-close-btn" style="margin-top:10px;" onclick="location.reload()" disabled>我已截圖/複製</button>
+        <button class="btn-main" id="ticket-close-btn" style="margin-top:10px;" onclick="location.reload()" disabled>我已複製 (複製後解鎖)</button>
     </div>
 </div>
 
@@ -128,83 +129,103 @@
     window.openAdminLogin = () => document.getElementById('login-modal').style.display = 'flex';
     window.closeLogin = () => document.getElementById('login-modal').style.display = 'none';
 
+    // 管理員登入流程
     window.processAdminLogin = () => {
         const p = document.getElementById('admin-pass-input').value;
         if (p === "@J108" || admins.some(a => a.pass === p)) { 
-            window.closeLogin(); document.getElementById('role-select').style.display = 'none';
+            window.closeLogin(); 
+            document.getElementById('role-select').style.display = 'none';
             document.getElementById('app-container').style.display = 'block';
             document.getElementById('admin-nav').style.display = 'flex'; 
-            initAdminFunctions(); window.showSection('admin-orders');
-        } else { alert("口令錯誤"); }
+            window.showSection('admin-orders');
+            renderAdminOrders();
+            renderAdminProducts();
+        } else { alert("驗證無效"); }
     };
 
-    function initAdminFunctions() {
-        window.addProduct = () => {
-            const n = document.getElementById('p-name').value, p = document.getElementById('p-price').value, s = document.getElementById('p-stock').value;
-            if(n && p && s) push(ref(db, 'products'), { name: n, price: parseInt(p), stock: parseInt(s) });
-        };
-        window.updateP = (id) => {
-            const n = document.getElementById(`edit-n-${id}`).value, p = parseInt(document.getElementById(`edit-p-${id}`).value), s = parseInt(document.getElementById(`edit-s-${id}`).value);
-            update(ref(db, `products/${id}`), { name: n, price: p, stock: s }).then(() => alert("已更新"));
-        };
-        window.upSt = (id, k, v) => {
-            const order = orders.find(o => o.id === id);
-            // 點擊已完成時，檢查付款
-            if (k === 'shipStatus' && v === '待簽收') {
-                if (!order.isPaid) {
-                    if (!confirm(`⚠️ 買家尚未付款 ($${order.total})，確定要開放簽收嗎？`)) return;
-                }
-            }
-            update(ref(db, `orders/${id}`), { [k]: (k === 'isPaid' ? !order.isPaid : v) });
-        };
-        window.addAdmin = () => {
-            const v = document.getElementById('new-admin-pass').value;
-            if(v) push(ref(db, 'admins'), { pass: v }).then(()=>document.getElementById('new-admin-pass').value='');
-        };
-        window.delD = (path, id) => { if(confirm("確定刪除？")) remove(ref(db, `${path}/${id}`)); };
-    }
+    // --- 管理功能掛載到 window ---
+    window.addProduct = () => {
+        const n = document.getElementById('p-name').value, p = document.getElementById('p-price').value, s = document.getElementById('p-stock').value;
+        if(n && p && s) push(ref(db, 'products'), { name: n, price: parseInt(p), stock: parseInt(s) });
+    };
+    window.updateP = (id) => {
+        const name = document.getElementById(`edit-n-${id}`).value;
+        const price = parseInt(document.getElementById(`edit-p-${id}`).value);
+        const stock = parseInt(document.getElementById(`edit-s-${id}`).value);
+        update(ref(db, `products/${id}`), { name, price, stock }).then(() => alert("已更新參數"));
+    };
+    window.upSt = (id, k, v) => {
+        const order = orders.find(o => o.id === id);
+        if (k === 'shipStatus' && v === '待簽收' && !order.isPaid) {
+            if (!confirm(`⚠️ 買家未付款 ($${order.total})，確定開放簽收嗎？`)) return;
+        }
+        update(ref(db, `orders/${id}`), { [k]: (k === 'isPaid' ? !order.isPaid : v) });
+    };
+    window.addAdmin = () => {
+        const v = document.getElementById('new-admin-pass').value;
+        if(v) push(ref(db, 'admins'), { pass: v }).then(()=>document.getElementById('new-admin-pass').value='');
+    };
+    window.delD = (path, id) => { if(confirm("確定刪除？")) remove(ref(db, `${path}/${id}`)); };
 
+    // --- 全域資料監聽 (最重要的修復) ---
     onValue(ref(db, 'products'), s => {
         products = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
         renderBuyerItems(); 
-        if(document.getElementById('admin-nav').style.display === 'flex') renderAdminProducts();
+        renderAdminProducts();
     });
     onValue(ref(db, 'orders'), s => {
         orders = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
-        if(document.getElementById('admin-nav').style.display === 'flex') renderAdminOrders();
+        renderAdminOrders();
         renderBuyerLookup();
     });
     onValue(ref(db, 'admins'), s => admins = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [] );
 
+    // --- 買家渲染 ---
     function renderBuyerItems() {
-        document.getElementById('buyer-item-list').innerHTML = products.map((p, i) => `
+        const list = document.getElementById('buyer-item-list');
+        if(!list) return;
+        list.innerHTML = products.map((p, i) => `
             <div class="product-row" onclick="const ck=this.querySelector('.b-check'); if(!ck.disabled) ck.checked=!ck.checked;">
                 <input type="checkbox" class="b-check" onclick="event.stopPropagation();" ${p.stock <= 0 ? 'disabled' : ''}>
                 <div style="flex:1;"><b>${p.name}</b> ($${p.price})<br><small>庫存: ${p.stock}</small></div>
                 <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" onclick="event.stopPropagation();" style="width:45px;">
             </div>
-        `).join('');
+        `).join('') || "商品補貨中";
     }
 
+    // 修復複製代碼功能
     window.copyCode = () => {
         const txt = document.getElementById('t-random').innerText;
-        navigator.clipboard.writeText(txt).then(() => {
+        const fallbackCopy = (text) => {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try { document.execCommand('copy'); } catch (err) {}
+            document.body.removeChild(textArea);
+        };
+        
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(txt).then(() => { lockUnlock(); }).catch(() => { fallbackCopy(txt); lockUnlock(); });
+        } else { fallbackCopy(txt); lockUnlock(); }
+
+        function lockUnlock() {
             document.getElementById('ticket-close-btn').disabled = false;
-            alert("已複製代碼！");
-        });
+            document.getElementById('ticket-close-btn').innerText = "✅ 複製成功，關閉視窗";
+            alert("代碼已複製！");
+        }
     };
 
     window.submitOrder = () => {
         const name = document.getElementById('b-name').value, grade = document.getElementById('b-grade').value;
-        if(!name || !grade) return alert("請填齊資料");
+        if(!name || !grade) return alert("資料未填完");
         let details = [], total = 0, updates = {};
         const checks = document.querySelectorAll('.b-check'), qtys = document.querySelectorAll('.b-qty');
         checks.forEach((ck, i) => { if(ck.checked) { const q = parseInt(qtys[i].value), p = products[i]; details.push(`${p.name}x${q}`); total += p.price * q; updates[`products/${p.id}/stock`] = p.stock - q; } });
         if(details.length === 0) return alert("未選商品");
         const rand = "@" + Math.floor(100000 + Math.random() * 900000);
         update(ref(db), updates).then(() => {
-            const info = `${grade} ${document.getElementById('b-class').value}班 ${document.getElementById('b-no').value}號`;
-            push(ref(db, 'orders'), { ts: new Date().toLocaleString(), buyer: name, info, detail: details.join(", "), total, isPaid: false, shipStatus: "待配送", randCode: rand }).then(() => {
+            push(ref(db, 'orders'), { ts: new Date().toLocaleString(), buyer: name, detail: details.join(", "), total, isPaid: false, shipStatus: "待配送", randCode: rand }).then(() => {
                 document.getElementById('t-buyer').innerText = name; document.getElementById('t-random').innerText = rand;
                 document.getElementById('ticket-modal').style.display = 'flex';
             });
@@ -214,7 +235,7 @@
     window.renderBuyerLookup = () => {
         const code = document.getElementById('lookup-code').value.trim();
         const container = document.getElementById('lookup-cards');
-        if(!code) { container.innerHTML = ""; return; }
+        if(!code || !container) return;
         const matched = orders.filter(o => o.randCode === code);
         container.innerHTML = matched.map(o => `
             <div class="card">
@@ -223,7 +244,7 @@
                 <p>內容: ${o.detail}</p><p>金額: $${o.total}</p>
                 ${o.shipStatus === "待簽收" ? `<button onclick="window.openVerify('${o.id}', '${o.randCode}')" style="background:var(--success); color:white; border:none; padding:15px; border-radius:10px; width:100%; font-weight:bold;">✅ 領貨簽收</button>` : ""}
             </div>
-        `).join('') || (code.length >= 7 ? "<p>查無訂單</p>" : "");
+        `).join('') || (code.length >= 7 ? "<p style='text-align:center;'>找不到訂單</p>" : "");
     };
 
     window.openVerify = (id, correctCode) => {
@@ -233,45 +254,54 @@
                 update(ref(db, `orders/${id}`), { shipStatus: "✅ 已簽收結案" }).then(() => {
                     alert("簽收成功！"); document.getElementById('verify-modal').style.display = 'none';
                 });
-            } else { alert("錯誤！"); }
+            } else { alert("碼錯誤！"); }
         };
     };
 
+    // --- 管理員渲染 ---
     function renderAdminOrders() {
-        document.getElementById('admin-order-cards').innerHTML = orders.slice().reverse().map(o => `
+        const container = document.getElementById('admin-order-cards');
+        if(!container) return;
+        container.innerHTML = orders.slice().reverse().map(o => `
             <div class="card">
                 <div style="float:right; text-align:right;">
                     <button onclick="window.upSt('${o.id}', 'isPaid', ${o.isPaid})" style="font-weight:bold; color:${o.isPaid?'green':'red'}; border:1px solid; background:none;">${o.isPaid?'✅已付':'❌未付'}</button><br>
                     <small style="color:red;">碼: ${o.randCode}</small>
                 </div>
-                <h3>${o.buyer} (${o.info})</h3>
-                <p>內容: ${o.detail}</p>
-                <div style="display:flex; gap:10px;">
+                <h3>${o.buyer}</h3>
+                <p>項目: ${o.detail}</p>
+                <div style="display:flex; gap:5px;">
                     <button onclick="window.upSt('${o.id}', 'shipStatus', '配送中')" style="flex:1; background:#eee; border:1px solid #ccc; padding:5px;">配送中</button>
                     <button onclick="window.upSt('${o.id}', 'shipStatus', '待簽收')" style="flex:1; background:var(--accent); border:none; padding:5px; font-weight:bold;">開放簽收</button>
                 </div>
-                <p style="margin:10px 0 0 0;">狀態：<b>${o.shipStatus}</b></p>
-                <div style="margin-top:10px; display:flex; gap:10px;">
-                    <button onclick="window.upSt('${o.id}', 'shipStatus', '退款')" style="background:#888; color:white; border:none; padding:5px; flex:1;">退款</button>
-                    <button onclick="window.delD('orders', '${o.id}')" style="background:red; color:white; border:none; padding:5px; flex:1;">刪除</button>
+                <p style="margin:5px 0 0 0; font-size:0.9rem;">狀態：<b>${o.shipStatus}</b></p>
+                <div style="margin-top:8px; display:flex; gap:10px;">
+                    <button onclick="window.upSt('${o.id}', 'shipStatus', '退款')" style="background:#888; color:white; border:none; padding:5px; flex:1; border-radius:5px;">退款</button>
+                    <button onclick="window.delD('orders', '${o.id}')" style="background:red; color:white; border:none; padding:5px; flex:1; border-radius:5px;">刪除</button>
                 </div>
             </div>
-        `).join('');
+        `).join('') || "目前暫無訂單";
     }
 
     function renderAdminProducts() {
-        document.getElementById('admin-product-cards').innerHTML = products.map(p => `
+        const container = document.getElementById('admin-product-cards');
+        if(!container) return;
+        container.innerHTML = products.map(p => `
             <div class="card">
                 <input type="text" id="edit-n-${p.id}" value="${p.name}">
                 <div style="display:flex; gap:5px;"><input type="number" id="edit-p-${p.id}" value="${p.price}" style="flex:1;"><input type="number" id="edit-s-${p.id}" value="${p.stock}" style="flex:1;"></div>
-                <button onclick="window.updateP('${p.id}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:8px; width:48%;">儲存</button>
-                <button onclick="window.delD('products', '${p.id}')" style="background:red; color:white; border:none; padding:10px; border-radius:8px; width:48%;">刪除</button>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="window.updateP('${p.id}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:8px; flex:1;">儲存</button>
+                    <button onclick="window.delD('products', '${p.id}')" style="background:red; color:white; border:none; padding:10px; border-radius:8px; flex:1;">刪除</button>
+                </div>
             </div>
-        `).join('');
+        `).join('') || "目前無商品";
     }
 
     function renderAdminList() {
-        document.getElementById('admin-list-cards').innerHTML = admins.map((a, i) => `
+        const container = document.getElementById('admin-list-cards');
+        if(!container) return;
+        container.innerHTML = admins.map((a, i) => `
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-weight:bold;">管理員密碼</span>
                 <button onclick="window.delD('admins', '${a.id}')" style="background:#888; color:white; border:none; padding:5px; border-radius:4px;">移除</button>
