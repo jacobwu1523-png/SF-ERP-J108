@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>J108 ERP ｜ 雙向驗證版</title>
+    <title>J108 ERP ｜ 隱私安全版</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
-        :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --success: #2ecc71; --gold: #d4af37; }
+        :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --success: #2ecc71; }
         
         body { font-family: "KaiTi", "標楷體", serif; background: var(--paper); color: var(--ink); margin: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
         .scroll-area { flex: 1; overflow-y: auto; padding: 15px; box-sizing: border-box; }
 
+        /* 首頁角色選擇 */
         #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 25px; }
         .role-btn { width: 80%; max-width: 300px; padding: 20px; font-size: 1.4rem; cursor: pointer; border: 4px double var(--ink); background: white; font-family: inherit; }
 
+        /* 導覽列 (僅管理員可見) */
         nav { background: var(--ink); padding: 10px; display: none; justify-content: center; gap: 8px; flex-wrap: wrap; z-index: 100; }
         nav button { background: rgba(255,255,255,0.1); border: 1px solid white; color: white; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
 
+        /* 卡片與輸入 */
         .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eee; }
         input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; font-size: 1rem; margin-bottom: 10px; box-sizing: border-box; }
         .btn-main { background: var(--ink); color: white; padding: 15px; border: none; cursor: pointer; font-family: inherit; border-radius: 8px; width: 100%; font-size: 1.1rem; font-weight: bold; }
@@ -24,6 +27,7 @@
         .product-row { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
         .b-check { width: 30px; height: 30px; margin-right: 12px; }
 
+        /* 彈窗 UI */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
         .modal-box { background: var(--paper); padding: 25px; border: 6px double var(--ink); width: 85%; max-width: 360px; text-align: center; }
 
@@ -59,15 +63,18 @@
             <select id="b-no" style="grid-column: span 2;"><option value="" disabled selected>座號</option></select>
         </div>
         <input type="text" id="b-name" placeholder="您的真實姓名">
-        <div id="buyer-item-list" style="background:#fff; border:1px solid #ddd; border-radius:8px;">載入中...</div>
-        <button class="btn-main" style="margin-top:20px;" onclick="window.submitOrder()">送出並取得隨機碼 🚀</button>
-        <button class="btn-main" style="background:#795548; margin-top:10px;" onclick="window.showSection('buyer-lookup')">🔍 查詢我的訂單</button>
+        <div id="buyer-item-list" style="background:#fff; border:1px solid #ddd; border-radius:8px;">載入商品中...</div>
+        <button class="btn-main" style="margin-top:20px;" onclick="window.submitOrder()">確認送出 🚀</button>
+        <button class="btn-main" style="background:#795548; margin-top:10px;" onclick="window.showSection('buyer-lookup')">🔍 用隨機碼查訂單</button>
     </div>
 
     <div id="buyer-lookup" class="section">
-        <h2>🔍 訂單狀態</h2>
-        <input type="text" id="lookup-key" placeholder="輸入姓名查詢..." oninput="window.renderBuyerLookup()">
-        <button class="btn-main" style="margin-bottom:15px; background:#888;" onclick="window.showSection('buyer-page')">返回下單</button>
+        <h2>🔍 憑隨機碼查詢</h2>
+        <p style="font-size: 0.9rem; color: #666;">請輸入訂單截圖上的 @隨機碼：</p>
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <input type="text" id="lookup-code" placeholder="@××××××" oninput="window.renderBuyerLookup()">
+            <button class="btn-main" style="width:80px; padding:10px; background:#888;" onclick="window.showSection('buyer-page')">返回</button>
+        </div>
         <div id="lookup-cards"></div>
     </div>
 
@@ -85,12 +92,11 @@
         <div class="ticket">
             <h3>🧾 訂購憑證</h3>
             <p id="t-buyer"></p>
-            <p id="t-detail"></p>
             <div style="background:#fff3cd; padding:10px;">
-                <p style="margin:0; font-size:0.8rem;">🔑 簽收隨機碼：</p>
+                <p style="margin:0; font-size:0.8rem; font-weight:bold;">🔑 查詢與簽收唯一碼：</p>
                 <div class="random-code" id="t-random"></div>
             </div>
-            <p style="color:red; font-size:0.8rem;">請截圖保存！領貨時需輸入此碼。</p>
+            <p style="color:red; font-size:0.8rem;">請務必截圖！遺失隨機碼將無法查詢與領貨。</p>
         </div>
         <button class="btn-main" style="margin-top:15px;" onclick="location.reload()">我已截圖</button>
     </div>
@@ -99,13 +105,14 @@
 <div id="verify-modal" class="custom-modal">
     <div class="modal-box">
         <h3>📦 確認領取商品</h3>
-        <p>管理員已準備好您的商品，<br>請輸入您的 <b>隨機代碼</b> 進行簽收：</p>
+        <p>請輸入您的 <b>隨機代碼</b> 進行簽收：</p>
         <input type="text" id="verify-input" placeholder="@××××××" style="text-align:center; font-size:1.5rem;">
         <button class="btn-main" id="confirm-verify-btn">確認簽收</button>
+        <button class="btn-main" style="background:#888; margin-top:10px;" onclick="document.getElementById('verify-modal').style.display='none'">取消</button>
     </div>
 </div>
 
-<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理登入</h3><input type="password" id="admin-pass-input" placeholder="@J108"><br><br><button class="btn-main" onclick="window.processAdminLogin()">登入</button><button class="btn-main" style="background:#888;" onclick="window.closeLogin()">取消</button></div></div>
+<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理權限驗證</h3><input type="password" id="admin-pass-input" placeholder="代碼"><br><br><button class="btn-main" onclick="window.processAdminLogin()">登入</button><button class="btn-main" style="background:#888;" onclick="window.closeLogin()">取消</button></div></div>
 <div id="msg-modal" class="custom-modal"><div class="modal-box"><h3 id="msg-title"></h3><p id="msg-text"></p><button class="btn-main" onclick="window.closeMsg()">確定</button></div></div>
 
 <script type="module">
@@ -144,7 +151,7 @@
     window.processAdminLogin = () => {
         const p = document.getElementById('admin-pass-input').value;
         if (p === "@J108" || admins.some(a => a.pass === p)) { window.closeLogin(); window.enterApp('admin'); }
-        else { window.customAlert("失敗", "口令錯誤"); }
+        else { window.customAlert("失敗", "口令代碼無效"); }
     };
 
     onValue(ref(db, 'products'), s => {
@@ -165,7 +172,7 @@
             <div class="product-row" onclick="const ck=this.querySelector('.b-check'); if(!ck.disabled) ck.checked=!ck.checked;">
                 <input type="checkbox" class="b-check" onclick="event.stopPropagation();" ${p.stock <= 0 ? 'disabled' : ''}>
                 <div style="flex:1;"><b>${p.name}</b> ($${p.price})<br><small>庫存: ${p.stock}</small></div>
-                <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" onclick="event.stopPropagation();" style="width:45px;">
+                <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" onclick="event.stopPropagation();" style="width:45px; padding:5px;">
             </div>
         `).join('');
     }
@@ -190,7 +197,6 @@
             const o = { ts: new Date().toLocaleString(), buyer: name, info, detail: details.join(", "), total, isPaid: false, shipStatus: "待配送", randCode: rand };
             push(ref(db, 'orders'), o).then(() => {
                 document.getElementById('t-buyer').innerText = `${name} (${info})`;
-                document.getElementById('t-detail').innerText = o.detail;
                 document.getElementById('t-random').innerText = rand;
                 document.getElementById('ticket-modal').style.display = 'flex';
             });
@@ -198,37 +204,37 @@
     };
 
     window.renderBuyerLookup = () => {
-        const k = document.getElementById('lookup-key').value.toLowerCase();
+        const code = document.getElementById('lookup-code').value.trim();
         const container = document.getElementById('lookup-cards');
-        container.innerHTML = orders.filter(o => o.buyer.toLowerCase().includes(k)).reverse().map(o => {
-            // 如果管理員設為配送中/完成，且該訂單尚未結案，則提示驗證
-            const isDelivering = o.shipStatus === "配送中" || o.shipStatus === "已完成";
-            const btnHtml = isDelivering ? `<button onclick="window.openVerify('${o.id}', '${o.randCode}')" style="background:var(--success); color:white; border:none; padding:8px; border-radius:5px; width:100%;">點此輸入隨機碼簽收</button>` : "";
+        if(!code) { container.innerHTML = ""; return; }
+        
+        const matched = orders.filter(o => o.randCode === code);
+        container.innerHTML = matched.map(o => {
+            const isActive = o.shipStatus === "配送中" || o.shipStatus === "已完成";
+            const btnHtml = isActive ? `<button onclick="window.openVerify('${o.id}', '${o.randCode}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:5px; width:100%; margin-top:10px; font-weight:bold;">點此驗證隨機碼簽收</button>` : "";
             return `
-                <div class="card">
+                <div class="card" style="border: 2px solid var(--ink);">
                     <div style="float:right;">${o.isPaid ? '✅已付' : '❌未付'}</div>
-                    <h3>${o.shipStatus}</h3>
-                    <p>項目: ${o.detail}</p>
-                    <p>總額: $${o.total}</p>
+                    <h3 style="color:var(--danger);">${o.shipStatus}</h3>
+                    <p><b>買家：</b>${o.buyer}</p>
+                    <p><b>項目：</b>${o.detail}</p>
+                    <p><b>總額：</b>$${o.total}</p>
+                    <p><small>訂單時間：${o.ts}</small></p>
                     ${btnHtml}
                 </div>
             `;
-        }).join('');
+        }).join('') || (code.length >= 7 ? "<p style='text-align:center;'>找不到此隨機碼的訂單</p>" : "");
     };
 
     window.openVerify = (id, correctCode) => {
         document.getElementById('verify-modal').style.display = 'flex';
         document.getElementById('confirm-verify-btn').onclick = () => {
-            const input = document.getElementById('verify-input').value.trim();
-            if(input === correctCode) {
+            if(document.getElementById('verify-input').value.trim() === correctCode) {
                 update(ref(db, `orders/${id}`), { shipStatus: "✅ 已簽收結案" }).then(() => {
-                    window.customAlert("成功", "簽收成功！感謝購買。");
+                    window.customAlert("成功", "簽收成功！");
                     document.getElementById('verify-modal').style.display = 'none';
-                    document.getElementById('verify-input').value = "";
                 });
-            } else {
-                alert("隨機碼錯誤！請查看您的截圖。");
-            }
+            } else { alert("隨機碼錯誤！"); }
         };
     };
 
@@ -237,10 +243,10 @@
             <div class="card">
                 <div style="float:right; text-align:right;">
                     <button onclick="window.upSt('${o.id}', 'isPaid', ${o.isPaid})">${o.isPaid?'✅已付':'❌未付'}</button><br>
-                    <small style="color:red; font-weight:bold;">驗證碼: ${o.randCode}</small>
+                    <small style="color:red; font-weight:bold;">碼: ${o.randCode}</small>
                 </div>
                 <h3>${o.buyer} (${o.info})</h3>
-                <p>內容: ${o.detail}</p>
+                <p>項目: ${o.detail}</p>
                 <select onchange="window.upSt('${o.id}', 'shipStatus', this.value)" style="width:auto;">
                     <option value="待配送" ${o.shipStatus=='待配送'?'selected':''}>待配送</option>
                     <option value="配送中" ${o.shipStatus=='配送中'?'selected':''}>配送中</option>
@@ -258,10 +264,7 @@
         document.getElementById('admin-product-cards').innerHTML = products.map(p => `
             <div class="card">
                 <input type="text" id="edit-n-${p.id}" value="${p.name}">
-                <div style="display:flex; gap:5px;">
-                    <input type="number" id="edit-p-${p.id}" value="${p.price}" style="flex:1;">
-                    <input type="number" id="edit-s-${p.id}" value="${p.stock}" style="flex:1;">
-                </div>
+                <div style="display:flex; gap:5px;"><input type="number" id="edit-p-${p.id}" value="${p.price}" style="flex:1;"><input type="number" id="edit-s-${p.id}" value="${p.stock}" style="flex:1;"></div>
                 <button onclick="window.updateP('${p.id}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:5px; width:48%;">儲存</button>
                 <button onclick="window.delD('products', '${p.id}')" style="background:red; color:white; border:none; padding:10px; border-radius:5px; width:48%;">刪除</button>
             </div>
@@ -288,8 +291,8 @@
     window.renderAdminList = () => {
         document.getElementById('admin-list-cards').innerHTML = admins.map((a, i) => `
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                <span>👤 管理員密碼 #${i+1}</span>
-                <button onclick="window.delD('admins', '${a.id}')" style="background:#888; color:white; border:none; padding:5px; border-radius:4px;">移除</button>
+                <span style="font-weight:bold;">管理員密碼</span>
+                <button onclick="window.delD('admins', '${a.id}')" style="background:#888; color:white; border:none; padding:5px; border-radius:4px;">移除權限</button>
             </div>
         `).join('');
     };
