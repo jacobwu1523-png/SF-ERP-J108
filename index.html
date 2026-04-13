@@ -2,50 +2,61 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J108 ERP ｜ 專業下拉優化版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>J108 ERP ｜ 觸控修復版</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
         :root { --ink: #3e2723; --paper: #fdfaf5; --danger: #e74c3c; --brown: #795548; --accent: #fbc02d; }
         
-        body { font-family: "KaiTi", "標楷體", serif; background: var(--paper); color: var(--ink); margin: 0; padding: 0; }
+        body { font-family: "KaiTi", "標楷體", serif; background: var(--paper); color: var(--ink); margin: 0; padding: 0; touch-action: manipulation; }
         
         .container { width: 95%; max-width: 1000px; margin: 10px auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; box-sizing: border-box; }
-        @media (min-width: 768px) { .container { margin: 30px auto; padding: 30px; } .info-grid { grid-template-columns: 1fr 1fr 1fr !important; } }
+        @media (min-width: 768px) { .container { margin: 30px auto; padding: 30px; } }
 
-        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 20px; padding: 20px; text-align: center; }
+        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 20px; padding: 20px; }
         .role-btn { width: 100%; max-width: 300px; padding: 20px; font-size: 1.5rem; cursor: pointer; border: 3px double var(--ink); background: white; font-family: inherit; }
 
-        /* 教學區 */
-        .tutorial-box { background: #fff9c4; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 8px solid var(--accent); font-size: 1rem; line-height: 1.6; }
-        .tutorial-box b { color: #d84315; }
-
-        nav { background: var(--ink); padding: 12px; display: none; justify-content: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
+        nav { background: var(--ink); padding: 12px; display: none; justify-content: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; z-index: 1000; }
         nav button { background: rgba(255,255,255,0.1); border: 1px solid white; color: white; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-family: inherit; }
 
-        .product-row { display: flex; align-items: center; padding: 15px 10px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .b-check { width: 35px !important; height: 35px !important; margin-right: 15px; cursor: pointer; }
-        .product-info { flex: 1; font-size: 1.1rem; }
-        .b-qty { width: 70px !important; padding: 10px !important; font-size: 1.1rem !important; text-align: center; }
-
-        .info-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 1rem; box-sizing: border-box; background: white; }
-        .btn-main { background: var(--ink); color: white; padding: 18px; border: none; cursor: pointer; font-family: inherit; border-radius: 4px; width: 100%; font-size: 1.3rem; font-weight: bold; }
-
-        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { background: var(--paper); padding: 30px; border: 6px double var(--ink); width: 85%; max-width: 380px; text-align: center; }
+        /* 商品列優化 */
+        .product-row { 
+            display: flex; 
+            align-items: center; 
+            padding: 20px 15px; 
+            border-bottom: 2px solid #eee; 
+            background: #fff;
+            position: relative;
+            z-index: 1;
+        }
         
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { background: var(--ink); color: white; padding: 12px; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
+        /* ‼️ 巨大勾選框：確保點擊熱區極大 */
+        .b-check { 
+            width: 40px !important; 
+            height: 40px !important; 
+            margin-right: 15px; 
+            cursor: pointer;
+            flex-shrink: 0;
+            accent-color: var(--ink);
+        }
+
+        .product-info { flex: 1; pointer-events: none; } /* 讓文字不干擾點擊 */
+        .b-qty { width: 75px !important; padding: 12px !important; font-size: 1.2rem !important; text-align: center; border: 2px solid #ddd; border-radius: 5px; }
+
+        .btn-main { background: var(--ink); color: white; padding: 20px; border: none; cursor: pointer; font-family: inherit; border-radius: 6px; width: 100%; font-size: 1.4rem; font-weight: bold; }
+        
+        select, input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-family: inherit; font-size: 1.1rem; background: white; }
+        
+        .tutorial-box { background: #fff9c4; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 8px solid var(--accent); }
+        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-box { background: var(--paper); padding: 30px; border: 6px double var(--ink); width: 85%; max-width: 380px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div id="role-select">
     <h1 style="font-size: 3rem; margin: 0;">J108 ERP</h1>
-    <button class="role-btn" onclick="window.enterApp('buyer')">🛍️ 買家下單</button>
+    <button class="role-btn" onclick="window.enterApp('buyer')">🛍️ 買家進入</button>
     <button class="role-btn" onclick="window.openAdminLogin()">⚙️ 管理登入</button>
 </div>
 
@@ -59,63 +70,68 @@
 <div class="container" id="buyer-app">
     <div id="buyer-order-form" class="section active">
         <div class="tutorial-box">
-            <b>💡 新手下單教學：</b><br>
-            1. 選擇您的 <b>年級、班級、座號</b> 並輸入姓名。<br>
-            2. <b>勾選</b> 商品（點擊大勾選框或商品名稱）。<br>
-            3. 確認數量後，點擊下方 <b>「確認提交」</b> 按鈕。<br>
-            4. 成功後可使用 <b>「查詢訂單進度」</b> 追蹤。
+            <b>💡 買家指南：</b><br>
+            1. 選擇年級班級座號與姓名。<br>
+            2. <b>點擊商品左方的「大方框」</b> 來勾選。<br>
+            3. 確認後按最下方的「確認提交」。
         </div>
 
         <h2>🖋️ 填寫訂購單</h2>
-        <div class="info-grid">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
             <select id="b-grade">
-                <option value="" disabled selected>選擇年級</option>
+                <option value="" disabled selected>年級</option>
                 <option value="國一">國一</option><option value="國二">國二</option><option value="國三">國三</option>
                 <option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option>
             </select>
             <select id="b-class">
-                <option value="" disabled selected>選擇班級</option>
-                </select>
-            <select id="b-no">
-                <option value="" disabled selected>選擇座號</option>
-                </select>
+                <option value="" disabled selected>班級</option>
+            </select>
+            <select id="b-no" style="grid-column: span 2;">
+                <option value="" disabled selected>座號</option>
+            </select>
         </div>
-        <input type="text" id="b-name" placeholder="您的姓名" style="margin-bottom:15px;">
+        <input type="text" id="b-name" placeholder="您的真實姓名" style="margin-bottom:20px;">
         
-        <label style="font-weight: bold; color: var(--brown);">🛍️ 勾選商品（點擊大勾選框）：</label>
-        <div id="buyer-item-list" style="border:1px solid #ddd; border-radius:5px; margin-top:10px; background: #fff;">載入中...</div>
+        <label style="font-weight: bold;">🛒 選擇商品：</label>
+        <div id="buyer-item-list" style="border:2px solid #ddd; border-radius:8px; margin-top:10px; background: #fff;">
+            載入商品中...
+        </div>
 
-        <button class="btn-main" style="margin-top:25px;" onclick="window.submitOrder()">確認提交訂單 🚀</button>
+        <button class="btn-main" style="margin-top:30px;" onclick="window.submitOrder()">確認提交訂單 🚀</button>
         <button class="btn-main" style="background:var(--brown); margin-top:15px;" onclick="window.showSection('buyer-lookup')">🔍 查詢訂單進度</button>
     </div>
 
     <div id="buyer-lookup" class="section">
-        <h2>🔍 查詢結果</h2>
-        <div style="display:flex; gap:10px; margin-bottom:15px;"><input type="text" id="lookup-key" placeholder="輸入姓名..." oninput="window.lookupOrder()"><button class="btn-main" style="width:100px; padding: 5px;" onclick="window.showSection('buyer-order-form')">返回</button></div>
-        <div class="table-wrapper"><table id="lookup-table"><thead><tr><th>內容</th><th>金額</th><th>付款</th><th>配送</th></tr></thead><tbody></tbody></table></div>
+        <h2>🔍 我的訂單</h2>
+        <div style="display:flex; gap:10px; margin-bottom:15px;"><input type="text" id="lookup-key" placeholder="輸入姓名..." oninput="window.lookupOrder()"><button class="btn-main" style="width:80px; padding:10px;" onclick="window.showSection('buyer-order-form')">返回</button></div>
+        <div style="overflow-x:auto;"><table id="lookup-table"><thead><tr><th>內容</th><th>金額</th><th>付款</th><th>配送</th></tr></thead><tbody></tbody></table></div>
     </div>
 </div>
 
 <div class="container" id="admin-app">
     <div id="admin-orders" class="section active">
-        <h2>📋 訂單管理</h2>
-        <div class="table-wrapper"><table><thead><tr><th>付款</th><th>配送</th><th>買家</th><th>內容</th><th>金額</th><th>操作</th></tr></thead><tbody id="admin-order-table"></tbody></table></div>
+        <h2>📋 訂單總管</h2>
+        <div style="overflow-x:auto;"><table id="admin-order-table-root"><thead><tr><th>付</th><th>送</th><th>人</th><th>項</th><th>額</th><th>管</th></tr></thead><tbody id="admin-order-table"></tbody></table></div>
     </div>
     <div id="admin-products" class="section">
-        <h2>⚙️ 庫存設定</h2>
-        <div class="info-grid"><input type="text" id="p-name" placeholder="名稱"><input type="number" id="p-price" placeholder="價" inputmode="numeric"><input type="number" id="p-stock" placeholder="數量" inputmode="numeric"></div>
-        <button class="btn-main" onclick="window.addProduct()">上架商品</button>
-        <div class="table-wrapper"><table id="product-table"><thead><tr><th>商品</th><th>單價</th><th>剩餘</th><th>操作</th></tr></thead><tbody></tbody></table></div>
+        <h2>⚙️ 庫存上架</h2>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+            <input type="text" id="p-name" placeholder="商品名稱">
+            <input type="number" id="p-price" placeholder="單價" inputmode="numeric">
+            <input type="number" id="p-stock" placeholder="初始庫存" inputmode="numeric">
+            <button class="btn-main" onclick="window.addProduct()">上架商品</button>
+        </div>
+        <table id="product-table"><thead><tr><th>項</th><th>價</th><th>存</th><th>管</th></tr></thead><tbody></tbody></table>
     </div>
     <div id="admin-users" class="section">
         <h2>👤 管理帳號</h2>
-        <div style="display:flex; gap:10px;"><input type="text" id="new-admin-pass" placeholder="新代碼"><button class="btn-main" style="width:100px; padding:5px;" onclick="window.addAdmin()">新增</button></div>
-        <table id="admin-list-table"><thead><tr><th>管理員序號</th><th>狀態</th><th>操作</th></tr></thead><tbody></tbody></table>
+        <div style="display:flex; gap:10px;"><input type="text" id="new-admin-pass" placeholder="新代碼"><button class="btn-main" style="width:100px;" onclick="window.addAdmin()">新增</button></div>
+        <table id="admin-list-table"><tbody></tbody></table>
     </div>
 </div>
 
-<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理驗證</h3><input type="password" id="admin-pass-input" placeholder="口令"><br><br><button class="btn-main" onclick="window.processAdminLogin()">進入</button><button class="btn-main" style="background:#888; margin-top:10px;" onclick="window.closeLogin()">關閉</button></div></div>
-<div id="msg-modal" class="custom-modal"><div class="modal-box"><h3 id="msg-title">提示</h3><p id="msg-text"></p><button class="btn-main" onclick="window.closeMsg()">確定</button></div></div>
+<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理驗證</h3><input type="password" id="admin-pass-input" placeholder="@J108"><br><br><button class="btn-main" onclick="window.processAdminLogin()">登入</button><button class="btn-main" style="background:#888; margin-top:10px;" onclick="window.closeLogin()">關閉</button></div></div>
+<div id="msg-modal" class="custom-modal"><div class="modal-box"><h3 id="msg-title">提示</h3><p id="msg-text"></p><button class="btn-main" onclick="window.closeMsg()">關閉</button></div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -136,24 +152,23 @@
     const db = getDatabase(app);
     let products = [], orders = [], admins = [];
 
-    // --- 自動生成選單數字 ---
-    const classSelect = document.getElementById('b-class');
-    for(let i=1; i<=20; i++) { let opt = new Option(i + " 班", i); classSelect.add(opt); }
-    
-    const noSelect = document.getElementById('b-no');
-    for(let i=1; i<=50; i++) { let opt = new Option(i + " 號", i); noSelect.add(opt); }
+    // 生成選單
+    const cls = document.getElementById('b-class');
+    for(let i=1; i<=20; i++) cls.add(new Option(i + " 班", i));
+    const nos = document.getElementById('b-no');
+    for(let i=1; i<=50; i++) nos.add(new Option(i + " 號", i));
 
-    // --- 介面修復：將函式綁定到 window ---
+    // 強制掛載函式到 window 確保 HTML 抓得到
+    window.showSection = (id) => { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
     window.customAlert = (t, txt) => { document.getElementById('msg-title').innerText = t; document.getElementById('msg-text').innerText = txt; document.getElementById('msg-modal').style.display = 'flex'; };
     window.closeMsg = () => document.getElementById('msg-modal').style.display = 'none';
     window.openAdminLogin = () => document.getElementById('login-modal').style.display = 'flex';
     window.closeLogin = () => document.getElementById('login-modal').style.display = 'none';
-    window.showSection = (id) => { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); };
 
     window.processAdminLogin = () => {
         const pass = document.getElementById('admin-pass-input').value;
         if (pass === "@J108" || admins.some(a => a.pass === pass)) { window.closeLogin(); window.enterApp('admin'); }
-        else { window.customAlert("驗證失敗", "代碼不正確"); }
+        else { window.customAlert("驗證失敗", "口令不正確"); }
     };
 
     window.enterApp = (role) => {
@@ -162,29 +177,30 @@
         if(role === 'admin') document.getElementById('admin-nav').style.display = 'flex';
     };
 
-    // --- Firebase 資料流 ---
+    // Firebase 監聽
     onValue(ref(db, 'products'), s => {
-        const val = s.val();
-        products = val ? Object.entries(val).map(([id, v]) => ({ id, ...v })) : [];
+        const v = s.val(); products = v ? Object.entries(v).map(([id, val]) => ({ id, ...val })) : [];
         renderBuyerItems(); renderAdminProducts();
     });
     onValue(ref(db, 'orders'), s => {
-        const val = s.val();
-        orders = val ? Object.entries(val).map(([id, v]) => ({ id, ...v })) : [];
+        const v = s.val(); orders = v ? Object.entries(v).map(([id, val]) => ({ id, ...val })) : [];
         renderAdminOrders();
     });
     onValue(ref(db, 'admins'), s => {
-        const val = s.val();
-        admins = val ? Object.entries(val).map(([id, v]) => ({ id, ...v })) : [];
+        const v = s.val(); admins = v ? Object.entries(v).map(([id, val]) => ({ id, ...val })) : [];
         renderAdminList();
     });
 
     function renderBuyerItems() {
+        // 使用 label 包裹 checkbox 讓點擊文字也能勾選
         document.getElementById('buyer-item-list').innerHTML = products.map((p, i) => `
-            <div class="product-row" onclick="this.querySelector('.b-check').click();">
-                <input type="checkbox" class="b-check" onclick="event.stopPropagation();" ${p.stock <= 0 ? 'disabled' : ''}>
-                <div class="product-info"><b>${p.name}</b><br><span style="color:red;">$${p.price}</span> | <small>庫存 ${p.stock}</small></div>
-                <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" inputmode="numeric" onclick="event.stopPropagation();" ${p.stock <= 0 ? 'disabled' : ''}>
+            <div class="product-row">
+                <input type="checkbox" class="b-check" id="chk-${i}" ${p.stock <= 0 ? 'disabled' : ''}>
+                <label for="chk-${i}" class="product-info">
+                    <b>${p.name}</b><br>
+                    <span style="color:red;">$${p.price}</span> | <small>庫存 ${p.stock}</small>
+                </label>
+                <input type="number" class="b-qty" value="1" min="1" max="${p.stock}" inputmode="numeric" ${p.stock <= 0 ? 'disabled' : ''}>
             </div>
         `).join('') || "商品補貨中...";
     }
@@ -192,13 +208,14 @@
     window.submitOrder = () => {
         const name = document.getElementById('b-name').value;
         const grade = document.getElementById('b-grade').value;
-        const cls = document.getElementById('b-class').value;
+        const cl = document.getElementById('b-class').value;
         const no = document.getElementById('b-no').value;
 
-        if(!grade || !cls || !no || !name) return window.customAlert("提示", "請填齊年級/班級/座號/姓名");
+        if(!grade || !cl || !no || !name) return window.customAlert("提醒", "請填寫完整資訊");
 
         let details = [], total = 0, updates = {};
         const checks = document.querySelectorAll('.b-check'), qtys = document.querySelectorAll('.b-qty');
+        
         checks.forEach((ck, i) => {
             if(ck.checked) {
                 const q = parseInt(qtys[i].value), p = products[i];
@@ -207,20 +224,21 @@
                 updates[`products/${p.id}/stock`] = p.stock - q;
             }
         });
-        if(details.length === 0) return window.customAlert("提示", "請選擇商品");
+
+        if(details.length === 0) return window.customAlert("提醒", "請至少勾選一項商品");
 
         update(ref(db), updates).then(() => {
             push(ref(db, 'orders'), {
                 ts: new Date().toLocaleString(), buyer: name,
-                info: `${grade} ${cls}班 ${no}號`,
+                info: `${grade} ${cl}班 ${no}號`,
                 detail: details.join(", "), total, isPaid: false, shipStatus: "待配送"
-            }).then(() => { window.customAlert("完成", "訂單提交成功！"); setTimeout(()=>location.reload(), 1500); });
+            }).then(() => { window.customAlert("成功", "訂單已提交！"); setTimeout(()=>location.reload(), 1500); });
         });
     };
 
     window.lookupOrder = () => {
-        const key = document.getElementById('lookup-key').value.toLowerCase();
-        document.querySelector('#lookup-table tbody').innerHTML = orders.filter(o => o.buyer.toLowerCase().includes(key)).reverse().map(o => `
+        const k = document.getElementById('lookup-key').value.toLowerCase();
+        document.querySelector('#lookup-table tbody').innerHTML = orders.filter(o => o.buyer.toLowerCase().includes(k)).reverse().map(o => `
             <tr><td><small>${o.detail}</small></td><td>$${o.total}</td><td>${o.isPaid?'已付':'未付'}</td><td>${o.shipStatus}</td></tr>
         `).join('');
     };
@@ -228,19 +246,19 @@
     function renderAdminOrders() {
         document.getElementById('admin-order-table').innerHTML = orders.slice().reverse().map(o => `
             <tr>
-                <td><button onclick="window.updateStatus('${o.id}', 'isPaid', ${o.isPaid})" style="font-size:1.5rem; background:none; border:none; cursor:pointer;">${o.isPaid?'✅':'❌'}</button></td>
-                <td><select onchange="window.updateStatus('${o.id}', 'shipStatus', this.value)"><option value="待配送" ${o.shipStatus=='待配送'?'selected':''}>待配送</option><option value="配送中" ${o.shipStatus=='配送中'?'selected':''}>配送中</option><option value="已完成" ${o.shipStatus=='已完成'?'selected':''}>已完成</option><option value="退款" ${o.shipStatus=='退款'?'selected':''}>退款</option></select></td>
+                <td><button onclick="window.upSt('${o.id}', 'isPaid', ${o.isPaid})" style="font-size:1.5rem; border:none; background:none; cursor:pointer;">${o.isPaid?'✅':'❌'}</button></td>
+                <td><select onchange="window.upSt('${o.id}', 'shipStatus', this.value)"><option value="待配送" ${o.shipStatus=='待配送'?'selected':''}>待配送</option><option value="配送中" ${o.shipStatus=='配送中'?'selected':''}>配送中</option><option value="已完成" ${o.shipStatus=='已完成'?'selected':''}>已完成</option><option value="退款" ${o.shipStatus=='退款'?'selected':''}>退款</option></select></td>
                 <td><b>${o.buyer}</b><br><small>${o.info}</small></td><td><small>${o.detail}</small></td><td>$${o.total}</td>
-                <td><button onclick="window.delData('orders', '${o.id}')" style="background:red; color:white; border:none; padding:5px; border-radius:3px;">刪</button></td>
+                <td><button onclick="window.delD('orders', '${o.id}')" style="background:red; color:white; border:none; padding:5px; border-radius:3px;">刪</button></td>
             </tr>
         `).join('');
     }
-    window.updateStatus = (id, k, v) => update(ref(db, `orders/${id}`), { [k]: (k === 'isPaid' ? !v : v) });
+    window.upSt = (id, k, v) => update(ref(db, `orders/${id}`), { [k]: (k === 'isPaid' ? !v : v) });
     window.addProduct = () => { const n = document.getElementById('p-name').value, p = document.getElementById('p-price').value, s = document.getElementById('p-stock').value; if(n && p && s) push(ref(db, 'products'), { name: n, price: parseInt(p), stock: parseInt(s) }); };
-    function renderAdminProducts() { document.querySelector('#product-table tbody').innerHTML = products.map(p => `<tr><td>${p.name}</td><td>$${p.price}</td><td>${p.stock}</td><td><button onclick="window.delData('products', '${p.id}')">刪</button></td></tr>`).join(''); }
+    function renderAdminProducts() { document.querySelector('#product-table tbody').innerHTML = products.map(p => `<tr><td>${p.name}</td><td>$${p.price}</td><td>${p.stock}</td><td><button onclick="window.delD('products', '${p.id}')">刪</button></td></tr>`).join(''); }
     window.addAdmin = () => { const v = document.getElementById('new-admin-pass').value; if(v) push(ref(db, 'admins'), { pass: v }).then(()=>document.getElementById('new-admin-pass').value=''); };
-    function renderAdminList() { document.querySelector('#admin-list-table tbody').innerHTML = admins.map((a, i) => `<tr><td>管理員帳號 #${i+1}</td><td>啟用</td><td><button onclick="window.delData('admins', '${a.id}')">刪</button></td></tr>`).join(''); }
-    window.delData = (path, id) => { if(confirm("確定刪除？")) remove(ref(db, `${path}/${id}`)); };
+    function renderAdminList() { document.querySelector('#admin-list-table tbody').innerHTML = admins.map((a, i) => `<tr><td>#${i+1}</td><td><button onclick="window.delD('admins', '${a.id}')">刪</button></td></tr>`).join(''); }
+    window.delD = (path, id) => { if(confirm("確定刪除？")) remove(ref(db, `${path}/${id}`)); };
 </script>
 </body>
 </html>
