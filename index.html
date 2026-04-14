@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>玄風密使系統 ｜ XF CLUB</title>
+    <title>玄風電競俱樂部 ｜ XF CLUB</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Noto+Sans+TC:wght@400;900&display=swap');
         
         :root {
             --xf-orange: #ff4d00;
             --xf-black: #111111;
-            --xf-gray: #222222;
+            --xf-gray: #f5f5f5;
+            --xf-dark-gray: #222222;
             --xf-white: #ffffff;
         }
 
         body { 
             font-family: 'Noto Sans TC', sans-serif; 
-            background: var(--xf-black); 
-            color: var(--xf-white); 
+            background: var(--xf-gray); 
+            color: var(--xf-black); 
             margin: 0; 
             height: 100dvh; 
             display: flex; 
@@ -25,126 +26,199 @@
             overflow: hidden; 
         }
 
-        .scroll-area { flex: 1; overflow-y: auto; box-sizing: border-box; padding-bottom: 20px; }
+        .scroll-area { flex: 1; overflow-y: auto; padding-bottom: 80px; }
 
-        /* 首頁登入選擇 */
-        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; }
-        .xf-logo { font-family: 'Black Ops One', cursive; font-size: 4rem; color: var(--xf-orange); margin: 0; }
+        /* 首頁角色選擇 (維持原本邏輯) */
+        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; background: var(--xf-black); }
+        .xf-logo-big { font-family: 'Black Ops One', cursive; font-size: 4.5rem; color: var(--xf-orange); margin: 0; text-shadow: 0 0 20px rgba(255, 77, 0, 0.6); }
         .role-card { 
-            width: 85%; max-width: 320px; padding: 25px; 
-            background: var(--xf-gray); border-left: 5px solid var(--xf-orange);
-            cursor: pointer; transition: 0.3s;
-        }
-        .role-card:hover { background: #333; }
-
-        /* 導覽列 */
-        nav { background: var(--xf-black); border-bottom: 2px solid var(--xf-orange); padding: 10px; display: none; justify-content: space-around; }
-        nav button { background: none; border: 1px solid var(--xf-orange); color: var(--xf-orange); padding: 5px 15px; cursor: pointer; font-size: 0.8rem; }
-
-        /* 買家介面：橫幅 */
-        .banner { width: 100%; height: 180px; object-fit: cover; border-bottom: 3px solid var(--xf-orange); }
-
-        /* 買家介面：商品卡片 (圖片正方形) */
-        .item-grid { padding: 15px; display: grid; grid-template-columns: 1fr; gap: 20px; }
-        .item-card { background: var(--xf-gray); display: flex; flex-direction: column; border-radius: 4px; overflow: hidden; }
-        .item-top { display: flex; padding: 15px; gap: 15px; }
-        .item-img { width: 120px; height: 120px; object-fit: cover; background: #000; flex-shrink: 0; }
-        .item-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .item-title { font-size: 1.4rem; font-weight: 900; line-height: 1.2; }
-        .item-price { font-family: 'Black Ops One', cursive; color: var(--xf-orange); font-size: 2rem; margin-top: 5px; }
-        
-        .order-btn { 
-            background: var(--xf-orange); color: #000; border: none; 
-            padding: 12px; font-weight: 900; font-size: 1.2rem; cursor: pointer; width: 100%;
+            width: 80%; max-width: 300px; padding: 20px; 
+            background: var(--xf-dark-gray); border-left: 5px solid var(--xf-orange);
+            cursor: pointer; color: white; transition: 0.3s;
         }
 
-        /* 圖片中提到的風格塊 */
-        .xf-section { background: #fff; color: #000; margin: 15px; padding: 15px; border-radius: 8px; }
-        .xf-section h3 { margin: 0 0 10px 0; border-bottom: 2px solid #000; }
-        .xf-label { font-weight: 900; font-size: 1.2rem; }
+        /* 買家主頁風格 */
+        .xf-banner-container { width: 100%; background: var(--xf-black); overflow: hidden; }
+        .xf-banner { width: 100%; height: auto; display: block; border-bottom: 3px solid var(--xf-orange); }
+
+        /* 遊戲切換列 */
+        .game-tabs { display: flex; background: #fff; padding: 10px; gap: 15px; margin-bottom: 10px; overflow-x: auto; align-items: center; }
+        .game-tab { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1rem; flex-shrink: 0; }
+        .game-icon { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd; }
+
+        /* 分類標題 */
+        .category-title { padding: 5px 15px; font-weight: 900; font-size: 1.1rem; color: #000; }
+
+        /* 商品網格 - 一排三格 */
+        .item-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px; 
+            padding: 10px 15px; 
+        }
+        .item-card { background: transparent; display: flex; flex-direction: column; align-items: center; }
+        .item-img { 
+            width: 100%; 
+            aspect-ratio: 1/1; 
+            object-fit: cover; 
+            border-radius: 8px; 
+            background: #000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .order-btn-img { 
+            width: 100%; 
+            margin-top: 8px; 
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .order-btn-img:active { transform: scale(0.95); }
+
+        /* 底部導覽列 - 完美還原圖片 */
+        .footer-nav { 
+            position: fixed; bottom: 0; left: 0; width: 100%; 
+            height: 70px; background: #222; 
+            display: none; justify-content: space-around; align-items: center;
+            border-top: 2px solid var(--xf-orange);
+            z-index: 1000;
+        }
+        .nav-item { text-align: center; color: #fff; text-decoration: none; font-size: 0.8rem; font-weight: 900; }
+        .nav-icon { width: 28px; height: 28px; display: block; margin: 0 auto 4px; filter: invert(1); }
+
+        /* 圖片風格下單區 (維持圖片中的白色簡約風) */
+        .order-page-header { background: var(--xf-black); color: white; text-align: center; padding: 15px; font-weight: 900; font-size: 1.5rem; }
+        .xf-section { background: #fff; margin: 15px; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .xf-section h3 { margin: 0 0 15px 0; border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 1.2rem; }
+        .xf-label { font-weight: 900; font-size: 1rem; margin-top: 10px; display: block; }
+        .xf-input { width: 100%; padding: 12px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
+
+        /* 管理員介面美化 */
+        .admin-section { padding: 20px; }
+        .admin-card { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #ddd; }
 
         /* 彈窗 */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center; }
-        .modal-box { background: var(--xf-gray); padding: 30px; border: 2px solid var(--xf-orange); width: 85%; max-width: 350px; }
-        
-        input { width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: #fff; margin-bottom: 10px; box-sizing: border-box; }
-        .btn-orange { background: var(--xf-orange); color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; }
+        .modal-box { background: #fff; padding: 30px; border-radius: 20px; width: 85%; max-width: 350px; }
     </style>
 </head>
 <body>
 
 <div id="role-select">
-    <h1 class="xf-logo">XF CLUB</h1>
+    <h1 class="xf-logo-big">XF CLUB</h1>
     <div class="role-card" onclick="window.openLogin('buyer')">
-        <div style="font-weight:900; font-size:1.5rem;">買家登入</div>
-        <div style="color:var(--xf-orange);">BUYER ENTRANCE</div>
+        <div style="font-weight:900; font-size:1.4rem;">進入俱樂部</div>
+        <div style="color:var(--xf-orange); font-size:0.8rem;">MEMBER ENTRANCE</div>
     </div>
-    <div class="role-card" onclick="window.openLogin('player')">
-        <div style="font-weight:900; font-size:1.5rem;">打手登入</div>
-        <div style="color:var(--xf-orange);">PLAYER ENTRANCE</div>
+    <div class="role-card" style="border-color:#555;" onclick="window.openLogin('player')">
+        <div style="font-weight:900; font-size:1.4rem;">密使登入</div>
+        <div style="color:#888; font-size:0.8rem;">PLAYER ACCESS</div>
     </div>
-    <div class="role-card" style="border-color:#444;" onclick="window.openLogin('admin')">
-        <div style="font-size:1rem; opacity:0.6;">管理員後台</div>
-    </div>
+    <div onclick="window.openLogin('admin')" style="color:#444; margin-top:30px; font-size:0.8rem; cursor:pointer;">ADMIN DASHBOARD</div>
 </div>
 
-<nav id="top-nav">
-    <span id="user-display" style="font-size: 0.8rem; color: var(--xf-orange);"></span>
-    <button onclick="location.reload()">登出</button>
-</nav>
-
 <div class="scroll-area" id="main-app" style="display:none;">
+    
     <div id="buyer-mall" class="section">
-        <img id="banner-img" src="https://via.placeholder.com/800x300?text=XF+CLUB+BANNER" class="xf-banner">
-        <div class="item-grid" id="mall-items"></div>
+        <div class="xf-banner-container">
+            <img id="banner-img" src="" class="xf-banner" onerror="this.src='https://via.placeholder.com/800x320?text=XF+ESPORTS+CLUB'">
+        </div>
+        
+        <div class="game-tabs">
+            <div class="game-tab">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/6b/0d/18/6b0d186c-4860-22e3-469a-6c17e6a7153b/AppIcon-0-0-1x_U007emarketing-0-5-0-85-220.png/230x0w.webp" class="game-icon">
+                PUBGM
+            </div>
+            <div class="game-tab" style="opacity: 0.5;">
+                <img src="https://play-lh.googleusercontent.com/I-TfFv9t0L6eU-K09x7vV0O5Vz6K8XhL2-8f9_Z-8y6f5K6V9F7-J9-L9-D9-L9-D9-L9-D9" class="game-icon">
+                三角洲
+            </div>
+        </div>
+
+        <div class="category-title">PUBGM基礎單</div>
+        <div class="item-grid" id="mall-items-basic"></div>
+
+        <div class="category-title">PUBGM特殊單</div>
+        <div class="item-grid" id="mall-items-special"></div>
     </div>
 
-    <div id="buyer-order-form" class="section" style="padding: 15px;">
-        <h2 style="font-family:'Black Ops One';">確認訂單</h2>
-        <div class="xf-section" id="form-item-preview" style="background:var(--xf-gray); color:white;"></div>
+    <div id="buyer-order-form" class="section">
+        <div class="order-page-header">確認訂單</div>
+        
+        <div class="xf-section" style="background:#222; color:#fff; display:flex; gap:15px; align-items:center;">
+            <img id="form-img" src="" style="width:100px; height:100px; border-radius:8px; border:2px solid var(--xf-orange);">
+            <div>
+                <div id="form-name" style="font-weight:900; font-size:1.3rem;"></div>
+                <div id="form-price" style="color:var(--xf-orange); font-family:'Black Ops One'; font-size:2rem; margin-top:5px;"></div>
+            </div>
+        </div>
+
         <div class="xf-section">
             <h3>下單信息</h3>
-            <div class="xf-label">* 遊戲 UID</div>
-            <input type="text" id="order-uid" placeholder="請輸入 UID">
-            <div class="xf-label">* 遊戲名字</div>
-            <input type="text" id="order-gamename" placeholder="請輸入角色名字">
-            <div class="xf-label">下單備註</div>
-            <input type="text" id="order-note" placeholder="可不填">
+            <label class="xf-label">* 遊戲 UID</label>
+            <input type="text" id="order-uid" class="xf-input" placeholder="請在此輸入您的遊戲 ID">
+            <label class="xf-label">* 遊戲名字</label>
+            <input type="text" id="order-gamename" class="xf-input" placeholder="請在此輸入您的角色名字">
+            <label class="xf-label">下單備註</label>
+            <input type="text" id="order-note" class="xf-input" placeholder="有特殊要求請留言">
         </div>
-        <button class="btn-orange" onclick="window.submitOrder()">確認提交任務 🚀</button>
+
+        <div style="padding:0 15px;">
+            <button class="btn-main" style="background:var(--xf-orange); color:#fff; font-size:1.4rem; padding:18px; border-radius:10px; width:100%; border:none; font-weight:900;" onclick="window.submitOrder()">立即下單</button>
+        </div>
+        <div style="text-align:center; padding:20px; font-size:0.8rem; color:#888; line-height:1.6;">
+            如果密使誘導您私下交易，添加連擊方式，請不要相信，不要轉帳，遇到問題請連擊客服
+        </div>
     </div>
 
-    <div id="order-list-page" class="section" style="padding: 15px;">
-        <h2 id="list-title">訂單牆</h2>
+    <div id="order-list-page" class="section admin-section">
+        <h2 style="font-weight:900;">任務大廳</h2>
         <div id="order-cards"></div>
     </div>
 
-    <div id="admin-panel" class="section" style="padding: 15px;">
-        <h3>系統設置</h3>
-        <input type="text" id="set-banner" placeholder="更新橫幅圖片網址">
-        <button class="btn-orange" onclick="window.updateBanner()">更新橫幅</button>
-        <hr>
-        <h3>發布新單品</h3>
-        <input type="text" id="p-name" placeholder="單品名稱">
-        <input type="text" id="p-img" placeholder="正方形圖片網址">
-        <input type="number" id="p-price" placeholder="價格">
-        <button class="btn-orange" onclick="window.addProduct()">上架物品</button>
-        <hr>
-        <h3>創建打手帳號</h3>
-        <input type="text" id="new-player-id" placeholder="打手自訂編號">
-        <button class="btn-orange" onclick="window.createPlayer()">產出專屬代碼</button>
-        <div id="player-list" style="margin-top:20px;"></div>
+    <div id="admin-panel" class="section admin-section">
+        <div class="admin-card">
+            <h4 style="margin:0 0 10px 0;">橫幅 & 商品圖上傳</h4>
+            <input type="file" accept="image/*" onchange="window.handleUpload(this, 'banner')">
+            <button onclick="window.updateBanner()" style="background:#000; color:#fff; width:100%; padding:10px; margin-top:5px;">更新 Banner</button>
+        </div>
+        <div class="admin-card">
+            <h4 style="margin:0 0 10px 0;">新增項目</h4>
+            <input type="text" id="p-name" class="xf-input" placeholder="項目名稱 (例如: 六百萬)">
+            <input type="number" id="p-price" class="xf-input" placeholder="價格">
+            <select id="p-type" class="xf-input"><option value="basic">基礎單</option><option value="special">特殊單</option></select>
+            <input type="file" accept="image/*" onchange="window.handleUpload(this, 'product')">
+            <button onclick="window.addProduct()" style="background:var(--xf-orange); width:100%; padding:15px; border:none; font-weight:900;">上架單品</button>
+        </div>
+        <div class="admin-card" id="player-manager">
+            <h4>打手代碼管理</h4>
+            <input type="text" id="new-player-id" class="xf-input" placeholder="打手稱呼">
+            <button onclick="window.createPlayer()" style="background:#555; color:white; width:100%; padding:10px; border:none;">生成代碼</button>
+            <div id="player-list" style="margin-top:10px;"></div>
+        </div>
+    </div>
+</div>
+
+<div class="footer-nav" id="main-footer">
+    <div class="nav-item" onclick="window.showSection('buyer-mall')">
+        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="nav-icon">
+        首頁
+    </div>
+    <div class="nav-item" onclick="alert('聯絡客服：LINE ID @xf_club')">
+        <img src="https://cdn-icons-png.flaticon.com/512/134/134914.png" class="nav-icon">
+        客服
+    </div>
+    <div class="nav-item" onclick="alert('個人中心開發中')">
+        <img src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png" class="nav-icon">
+        我的
     </div>
 </div>
 
 <div id="login-modal" class="custom-modal">
     <div class="modal-box">
-        <h2 id="modal-title" style="color:var(--xf-orange);">登入</h2>
-        <div id="buyer-reg-hint" style="font-size:0.8rem; margin-bottom:10px; display:none;">首次登入將自動創建帳號</div>
-        <input type="text" id="login-id" placeholder="Gmail / 代碼 / admin">
-        <input type="password" id="login-pass" placeholder="密碼 (管理員/買家需填)">
-        <button class="btn-orange" onclick="window.auth()">進入系統</button>
-        <button onclick="window.closeLogin()" style="background:none; border:none; color:#888; margin-top:10px; width:100%;">取消</button>
+        <h2 id="modal-title" style="color:var(--xf-orange); margin-top:0; font-weight:900;">身分驗證</h2>
+        <input type="text" id="login-id" class="xf-input" placeholder="帳號 / 代碼">
+        <input type="password" id="login-pass" class="xf-input" placeholder="密碼">
+        <button onclick="window.auth()" style="background:var(--xf-orange); color:#fff; width:100%; padding:15px; border:none; font-weight:900; border-radius:8px;">確認登入</button>
+        <button onclick="window.closeLogin()" style="background:none; border:none; color:#888; width:100%; margin-top:15px;">關閉</button>
     </div>
 </div>
 
@@ -165,14 +239,20 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    let products = [], orders = [], users = [], players = [];
-    let curRole = '', curUser = null, curProduct = null;
+    let products = [], orders = [], players = [], currentBase64 = "";
+    let curRole = '', curUser = null;
 
-    // UI切換
+    // --- 上傳處理 ---
+    window.handleUpload = (input, type) => {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => { currentBase64 = e.target.result; };
+        reader.readAsDataURL(file);
+    };
+
+    // --- 核心導覽 ---
     window.openLogin = (role) => {
         curRole = role;
-        document.getElementById('modal-title').innerText = role === 'buyer' ? '買家登入' : (role === 'player' ? '打手登入' : '管理員登入');
-        document.getElementById('buyer-reg-hint').style.display = role === 'buyer' ? 'block' : 'none';
         document.getElementById('login-modal').style.display = 'flex';
     };
     window.closeLogin = () => document.getElementById('login-modal').style.display = 'none';
@@ -181,41 +261,38 @@
         document.getElementById(id).style.display = 'block';
     };
 
-    // 驗證邏輯
     window.auth = async () => {
         const id = document.getElementById('login-id').value.trim();
         const pass = document.getElementById('login-pass').value;
 
-        if (curRole === 'admin') {
-            if (id === 'admin' && pass === 'XuanFeng') { proceed('Admin'); } else { alert('管理員密碼錯誤'); }
-        } else if (curRole === 'buyer') {
-            if (!id.includes('@')) return alert('請輸入有效的 Gmail');
-            const userRef = ref(db, `users/${id.replace(/\./g, '_')}`);
-            const snap = await get(userRef);
-            if (snap.exists()) {
-                if (snap.val().pass === pass) { curUser = snap.val(); proceed(id); } else { alert('密碼錯誤'); }
-            } else {
-                await set(userRef, { id, pass });
-                curUser = { id, pass }; proceed(id);
-            }
-        } else if (curRole === 'player') {
+        if (curRole === 'admin' && id === 'admin' && pass === 'XuanFeng') proceed('管理員');
+        else if (curRole === 'player') {
             const p = players.find(x => x.code === id);
-            if (p) { curUser = p; proceed(`打手: ${p.name}`); } else { alert('無效的打手代碼'); }
-        }
+            if(p) { curUser = p; proceed(`密使: ${p.name}`); } else alert('代碼錯誤');
+        } else if (curRole === 'buyer' && id.includes('@')) {
+            const uRef = ref(db, `users/${id.replace(/\./g, '_')}`);
+            const snap = await get(uRef);
+            if(snap.exists() && snap.val().pass === pass) { curUser = snap.val(); proceed(id); }
+            else if(!snap.exists()) { await set(uRef, {id, pass}); curUser = {id, pass}; proceed(id); }
+            else alert('密碼錯誤');
+        } else alert('請檢查登入資訊');
     };
 
     function proceed(display) {
         window.closeLogin();
         document.getElementById('role-select').style.display = 'none';
-        document.getElementById('top-nav').style.display = 'flex';
         document.getElementById('main-app').style.display = 'block';
-        document.getElementById('user-display').innerText = display;
-        if (curRole === 'buyer') window.showSection('buyer-mall');
-        else if (curRole === 'player') window.showSection('order-list-page');
-        else window.showSection('admin-panel');
+        if(curRole === 'buyer') {
+            document.getElementById('main-footer').style.display = 'flex';
+            window.showSection('buyer-mall');
+        } else if(curRole === 'player') {
+            window.showSection('order-list-page');
+        } else {
+            window.showSection('admin-panel');
+        }
     }
 
-    // 監聽
+    // --- 資料監聽 ---
     onValue(ref(db, 'config'), s => { if(s.val()) document.getElementById('banner-img').src = s.val().banner; });
     onValue(ref(db, 'products'), s => {
         products = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
@@ -230,100 +307,83 @@
         renderPlayerList();
     });
 
-    // 買家功能
+    // --- 商城渲染 (一排三格) ---
     function renderMall() {
-        document.getElementById('mall-items').innerHTML = products.map(p => `
+        const basic = products.filter(p => p.type === 'basic');
+        const special = products.filter(p => p.type === 'special');
+        
+        const cardHtml = p => `
             <div class="item-card">
-                <div class="item-top">
-                    <img src="${p.img}" class="item-img">
-                    <div class="item-info">
-                        <div class="item-title">${p.name}</div>
-                        <div class="item-price">$${p.price}</div>
-                    </div>
-                </div>
-                <button class="order-btn" onclick="window.toForm('${p.id}')">立即下單任務</button>
+                <img src="${p.img}" class="item-img" onclick="window.toForm('${p.id}')">
+                <img src="https://i.postimg.cc/0jXyD0Xn/btn-order.png" class="order-btn-img" onclick="window.toForm('${p.id}')" onerror="this.outerHTML='<button style=\'background:red;color:white;border:none;width:100%;padding:5px;border-radius:5px\'>立即下單</button>'">
             </div>
-        `).join('');
+        `;
+
+        document.getElementById('mall-items-basic').innerHTML = basic.map(cardHtml).join('');
+        document.getElementById('mall-items-special').innerHTML = special.map(cardHtml).join('');
     }
 
     window.toForm = (id) => {
-        curProduct = products.find(x => x.id === id);
-        document.getElementById('form-item-preview').innerHTML = `
-            <div style="display:flex; gap:15px; align-items:center;">
-                <img src="${curProduct.img}" style="width:80px; height:80px; border:2px solid var(--xf-orange);">
-                <div>
-                    <div style="font-weight:900; font-size:1.2rem;">${curProduct.name}</div>
-                    <div style="color:var(--xf-orange); font-size:1.5rem; font-family:'Black Ops One';">$${curProduct.price}</div>
-                </div>
-            </div>
-        `;
+        const p = products.find(x => x.id === id);
+        document.getElementById('form-img').src = p.img;
+        document.getElementById('form-name').innerText = p.name;
+        document.getElementById('form-price').innerText = `$${p.price}`;
         window.showSection('buyer-order-form');
+        document.getElementById('main-footer').style.display = 'none';
     };
 
     window.submitOrder = () => {
         const uid = document.getElementById('order-uid').value;
         const name = document.getElementById('order-gamename').value;
-        if (!uid || !name) return alert('必填項不可為空');
+        if(!uid || !name) return alert('UID與名字必填');
         push(ref(db, 'orders'), {
-            buyer: curUser.id,
-            product: curProduct.name,
-            price: curProduct.price,
-            uid, name,
-            note: document.getElementById('order-note').value,
-            status: '待接單',
-            ts: new Date().toLocaleString()
-        }).then(() => { alert('下單成功！'); window.showSection('buyer-mall'); });
+            product: document.getElementById('form-name').innerText,
+            price: document.getElementById('form-price').innerText,
+            uid, name, note: document.getElementById('order-note').value,
+            status: '待接單', ts: new Date().toLocaleString()
+        }).then(() => { alert('下單成功'); window.showSection('buyer-mall'); document.getElementById('main-footer').style.display = 'flex'; });
     };
 
-    // 訂單清單 (打手/管理員)
+    // --- 打手與管理員視圖 ---
     function renderOrders() {
-        document.getElementById('order-cards').innerHTML = orders.map(o => `
-            <div class="xf-section" style="background:#222; color:#fff; border:1px solid ${o.status==='待接單'?'#ff4d00':'#444'}">
-                <div style="float:right; color:var(--xf-orange); font-weight:900;">${o.status}</div>
-                <div style="font-weight:900; font-size:1.2rem;">${o.product}</div>
-                <p>💸 價格: $${o.price}</p>
-                <div style="background:#111; padding:10px; margin-top:10px; font-size:0.9rem;">
-                    <b>老闆資料：</b><br>
-                    UID: ${o.uid}<br>
-                    名字: ${o.name}<br>
-                    備註: ${o.note || '無'}
+        document.getElementById('order-cards').innerHTML = orders.slice().reverse().map(o => `
+            <div class="xf-section" style="background:#222; color:#fff;">
+                <div style="float:right; color:var(--xf-orange);">${o.status}</div>
+                <div style="font-weight:900;">${o.product} (${o.price})</div>
+                <hr style="border-color:#444;">
+                <div style="font-size:0.9rem;">
+                    老闆：${o.name}<br>UID：${o.uid}<br>備註：${o.note || '無'}
                 </div>
-                ${curRole === 'player' && o.status === '待接單' ? 
-                    `<button class="btn-orange" style="margin-top:10px;" onclick="window.takeOrder('${o.id}')">接下此單任務</button>` : ''}
-                ${curRole === 'admin' ? `<button onclick="window.delOrder('${o.id}')" style="background:red; color:white; border:none; margin-top:10px; padding:5px;">刪除單據</button>` : ''}
+                ${curRole==='player' && o.status==='待接單' ? `<button onclick="window.takeOrder('${o.id}')" style="background:var(--xf-orange); width:100%; border:none; padding:10px; margin-top:10px; font-weight:900;">接下單據</button>`:''}
+                ${curRole==='admin' ? `<button onclick="window.delD('orders','${o.id}')" style="background:red; color:white; border:none; margin-top:10px; padding:5px;">刪除</button>`:''}
             </div>
-        `).join('') || '目前牆上沒有任務';
+        `).join('') || '尚無任務';
     }
 
-    window.takeOrder = (id) => {
-        update(ref(db, `orders/${id}`), { status: `已由 ${curUser.name} 接單` });
-    };
+    window.takeOrder = (id) => update(ref(db, `orders/${id}`), { status: `已由 ${curUser.name} 接單` });
 
-    // 管理員功能
-    window.updateBanner = () => {
-        const url = document.getElementById('set-banner').value;
-        update(ref(db, 'config'), { banner: url });
-    };
+    // --- 管理功能 ---
+    window.updateBanner = () => { if(currentBase64) update(ref(db, 'config'), { banner: currentBase64 }).then(()=>alert('橫幅已更新')); };
     window.addProduct = () => {
-        const name = document.getElementById('p-name').value;
-        const img = document.getElementById('p-img').value;
-        const price = document.getElementById('p-price').value;
-        push(ref(db, 'products'), { name, img, price });
+        const n = document.getElementById('p-name').value;
+        const p = document.getElementById('p-price').value;
+        const t = document.getElementById('p-type').value;
+        if(n && p && currentBase64) push(ref(db, 'products'), { name: n, price: p, img: currentBase64, type: t }).then(()=>alert('上架成功'));
     };
     window.createPlayer = () => {
-        const name = document.getElementById('new-player-id').value;
+        const n = document.getElementById('new-player-id').value;
+        if(!n) return;
         const code = "@" + Math.floor(100000 + Math.random() * 900000);
-        push(ref(db, 'players'), { name, code });
+        push(ref(db, 'players'), { name: n, code });
     };
     function renderPlayerList() {
-        document.getElementById('player-list').innerHTML = "打手列表：<br>" + players.map(p => `
-            <div class="card" style="padding:10px; margin-bottom:5px; background:#222;">
-                <b>${p.name}</b> 代碼：<span style="color:var(--xf-orange);">${p.code}</span>
+        document.getElementById('player-list').innerHTML = players.map(p => `
+            <div style="background:#eee; padding:8px; margin-top:5px; border-radius:5px;">
+                <b>${p.name}</b> 代碼: <span style="color:var(--xf-orange);">${p.code}</span>
             </div>
         `).join('');
     }
-    window.delOrder = (id) => { if(confirm('確定刪除？')) remove(ref(db, `orders/${id}`)); };
-
+    window.delD = (path, id) => { if(confirm('確定刪除？')) remove(ref(db, `${path}/${id}`)); };
 </script>
 </body>
 </html>
