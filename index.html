@@ -3,130 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>J108 Club ｜ 搶單管理系統</title>
+    <title>J108 Club ｜ 核心控制台</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
-        :root { --club-gold: #d4af37; --club-black: #1a1a1a; --ink: #333; --paper: #f4f4f4; --danger: #e74c3c; --success: #27ae60; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Playfair+Display:wght@700&display=swap');
         
-        body { font-family: "KaiTi", "標楷體", serif; background: var(--paper); color: var(--ink); margin: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-        .scroll-area { flex: 1; overflow-y: auto; padding: 15px; box-sizing: border-box; }
+        :root {
+            --gold: #d4af37;
+            --dark-gold: #aa8439;
+            --black: #0a0a0a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --text: #e0e0e0;
+        }
 
-        /* 入口視覺 */
-        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 20px; background: var(--club-black); color: white; }
-        .role-btn { width: 85%; max-width: 300px; padding: 20px; font-size: 1.4rem; cursor: pointer; border: 2px solid var(--club-gold); background: transparent; color: var(--club-gold); font-family: inherit; transition: 0.3s; }
-        .role-btn:hover { background: var(--club-gold); color: black; }
+        body { 
+            font-family: 'Noto Serif TC', serif; 
+            background: var(--black); 
+            color: var(--text); 
+            margin: 0; 
+            height: 100dvh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%);
+        }
+
+        /* 高級滾動條 */
+        .scroll-area::-webkit-scrollbar { width: 4px; }
+        .scroll-area::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+
+        .scroll-area { flex: 1; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+
+        /* 奢華首頁 */
+        #role-select { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+        .logo { font-family: 'Playfair Display', serif; font-size: 4rem; color: var(--gold); text-shadow: 0 0 20px rgba(212, 175, 55, 0.5); margin-bottom: 0; }
+        .sub-logo { letter-spacing: 5px; color: var(--dark-gold); margin-bottom: 40px; font-size: 0.8rem; }
+
+        .role-btn { 
+            width: 80%; max-width: 280px; padding: 18px; margin: 10px;
+            background: transparent; border: 1px solid var(--gold); color: var(--gold);
+            font-size: 1.1rem; cursor: pointer; border-radius: 0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden;
+        }
+        .role-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--gold); transition: 0.4s; z-index: -1; }
+        .role-btn:hover { color: black; }
+        .role-btn:hover::after { left: 0; }
 
         /* 導覽列 */
-        nav { background: var(--club-black); padding: 10px; display: none; justify-content: center; gap: 8px; flex-wrap: wrap; border-bottom: 2px solid var(--club-gold); }
-        nav button { background: transparent; border: 1px solid var(--club-gold); color: var(--club-gold); padding: 8px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; }
+        nav { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); padding: 10px; display: none; justify-content: center; gap: 10px; border-bottom: 1px solid var(--gold); }
+        nav button { background: none; border: 1px solid var(--dark-gold); color: var(--gold); padding: 8px 15px; font-size: 0.8rem; cursor: pointer; }
 
-        /* 卡片設計 */
-        .card { background: white; border-radius: 15px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 1px solid #ddd; }
-        .card-img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
-        .card-body { padding: 15px; }
-        .card-title { font-size: 1.3rem; font-weight: bold; margin: 0 0 10px 0; color: var(--club-black); }
+        /* 打手卡片設計 */
+        .card { 
+            background: var(--glass); border: 1px solid rgba(212, 175, 55, 0.2); 
+            border-radius: 4px; overflow: hidden; margin-bottom: 25px; 
+            backdrop-filter: blur(5px); transition: 0.3s;
+        }
+        .card-img { width: 100%; height: 200px; object-fit: cover; filter: brightness(0.8); transition: 0.5s; }
+        .card:hover .card-img { filter: brightness(1.1); transform: scale(1.02); }
+        .card-content { padding: 20px; border-top: 1px solid rgba(212, 175, 55, 0.2); }
         
-        .tag-status { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; float: right; color: white; }
-        .status-open { background: var(--success); }
-        .status-taken { background: var(--club-gold); }
+        /* 金錢顯示 */
+        .price-tag { color: var(--gold); font-size: 1.5rem; font-weight: 900; margin: 10px 0; }
+        .balance-label { background: var(--gold); color: black; padding: 2px 8px; font-size: 0.8rem; font-weight: bold; }
 
-        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; font-size: 1rem; margin-bottom: 10px; box-sizing: border-box; }
-        .btn-main { background: var(--club-black); color: var(--club-gold); padding: 16px; border: 1px solid var(--club-gold); cursor: pointer; font-family: inherit; border-radius: 10px; width: 100%; font-size: 1.2rem; font-weight: bold; }
-        
-        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border: 4px solid var(--club-gold); width: 85%; max-width: 400px; text-align: center; border-radius: 20px; }
-        .random-code-display { font-size: 2.2rem; font-weight: bold; color: var(--danger); letter-spacing: 3px; margin: 15px 0; border: 2px dashed #aaa; padding: 10px; }
+        /* 輸入框與主按鈕 */
+        input, select { 
+            width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid #333; 
+            color: white; border-radius: 0; margin-bottom: 15px; box-sizing: border-box; 
+        }
+        input:focus { border-color: var(--gold); outline: none; }
+        .btn-gold { background: var(--gold); color: black; border: none; padding: 18px; width: 100%; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+
+        /* 彈窗 */
+        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-box { background: #111; padding: 40px; border: 1px solid var(--gold); width: 85%; max-width: 350px; text-align: center; }
+        .random-code { font-size: 2.5rem; color: var(--gold); letter-spacing: 5px; margin: 20px 0; border: 1px solid #333; padding: 10px; }
     </style>
 </head>
 <body>
 
 <div id="role-select">
-    <h1 style="font-size: 3rem; margin: 0; color: var(--club-gold);">J108 CLUB</h1>
-    <p style="color: #aaa;">頂級俱樂部 ｜ 專屬搶單系統</p>
-    <button class="role-btn" onclick="window.enterBuyer()">🏆 進入搶單牆</button>
-    <button class="role-btn" onclick="window.enterBuyerLookup()">🔍 查詢我的訂單</button>
-    <button class="role-btn" style="font-size: 1rem; border-color: #444; color: #666;" onclick="window.openAdminLogin()">⚙️ 管理員後台</button>
+    <div class="logo">J108</div>
+    <div class="sub-logo">ELITE CLUB SYSTEM</div>
+    <button class="role-btn" onclick="window.openPlayerLogin()">🗝️ 打手系統入口</button>
+    <button class="role-btn" onclick="window.openAdminLogin()">⚙️ 核心控制台</button>
 </div>
 
 <nav id="admin-nav">
-    <button onclick="window.showSection('admin-orders')">📋 搶單監控</button>
-    <button onclick="window.showSection('admin-products')">➕ 發布任務</button>
-    <button onclick="window.showSection('admin-users')">👤 密碼設定</button>
-    <button onclick="location.reload()" style="border-color:var(--danger); color:var(--danger);">🚪 登出</button>
+    <button onclick="window.showSection('admin-orders')">訂單監控</button>
+    <button onclick="window.showSection('admin-products')">任務發布</button>
+    <button onclick="window.showSection('admin-users')">打手帳號管理</button>
+    <button onclick="location.reload()">系統登出</button>
 </nav>
 
 <div class="scroll-area" id="app-container" style="display:none;">
     
-    <div id="buyer-page" class="section">
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--club-gold); margin-bottom:10px;">⬅ 返回首頁</button>
-        <h2 style="color: var(--club-black);">💎 今日專屬任務</h2>
-        <div id="buyer-mission-list">載入任務中...</div>
-    </div>
-
-    <div id="order-form-page" class="section">
-        <h2>🖋️ 搶單確認</h2>
-        <div class="card" id="selected-mission-preview"></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <select id="b-grade"><option value="" disabled selected>年級</option><option value="國一">國一</option><option value="國二">國二</option><option value="國三">國三</option><option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option></select>
-            <select id="b-class"><option value="" disabled selected>班級</option></select>
+    <div id="player-dashboard" class="section">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color:var(--gold); margin:0;">任務牆</h2>
+            <div id="player-info-display"></div>
         </div>
-        <input type="text" id="b-name" placeholder="您的尊姓大名">
-        <button class="btn-main" onclick="window.finalizeOrder()">確認搶單並取得隨機碼 🚀</button>
-        <button class="btn-main" style="background:#eee; color:#333; border:none; margin-top:10px;" onclick="window.showSection('buyer-page')">取消</button>
+        <div id="mission-list">載入任務中...</div>
+        <button class="role-btn" style="width:100%; max-width:none;" onclick="window.showSection('player-lookup')">🔍 查詢我的歷史訂單</button>
     </div>
 
-    <div id="buyer-lookup" class="section">
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--club-gold); margin-bottom:10px;">⬅ 返回</button>
-        <h2>🔍 訂單憑碼查詢</h2>
-        <input type="text" id="lookup-code" placeholder="請輸入 @隨機碼" oninput="window.renderBuyerLookup()">
-        <div id="lookup-cards"></div>
+    <div id="player-lookup" class="section">
+        <h2 style="color:var(--gold);">歷史記錄</h2>
+        <input type="text" id="lookup-code" placeholder="輸入隨機驗證碼查詢...">
+        <button class="btn-gold" style="margin-bottom:20px;" onclick="window.renderPlayerLookup()">立即檢索</button>
+        <div id="lookup-results"></div>
+        <button class="role-btn" style="width:100%; max-width:none;" onclick="window.showSection('player-dashboard')">返回任務牆</button>
     </div>
 
-    <div id="admin-orders" class="section"><h2>📋 全球監控中心</h2><div id="admin-order-cards"></div></div>
-    
+    <div id="admin-orders" class="section">
+        <h2 style="color:var(--gold);">訂單全局監控</h2>
+        <div id="admin-order-cards"></div>
+    </div>
+
     <div id="admin-products" class="section">
-        <h2>⚙️ 任務參數發布</h2>
-        <div class="card" style="padding:15px; background:#f9f9f9;">
-            <input type="text" id="p-name" placeholder="任務/物品名稱">
-            <input type="text" id="p-img" placeholder="圖片網址 (https://...)">
-            <div style="display:flex; gap:10px;">
-                <input type="number" id="p-price" placeholder="價格" style="flex:1;">
-                <input type="number" id="p-stock" placeholder="名額/庫存" style="flex:1;">
-            </div>
-            <button class="btn-main" style="background:var(--club-gold); color:black;" onclick="window.addProduct()">發布到任務牆</button>
+        <h2 style="color:var(--gold);">發布新任務</h2>
+        <div class="card" style="padding:20px;">
+            <input type="text" id="p-name" placeholder="任務名稱">
+            <input type="text" id="p-img" placeholder="圖片連結 (建議使用 16:9 圖片)">
+            <input type="number" id="p-price" placeholder="搶單價格 (需扣除之餘額)">
+            <input type="number" id="p-stock" placeholder="限額人數">
+            <button class="btn-gold" onclick="window.addProduct()">發布任務</button>
         </div>
         <div id="admin-product-cards"></div>
     </div>
 
-    <div id="admin-users" class="section"><h2>👤 管理帳號</h2><input type="text" id="new-admin-pass" placeholder="新代碼"><button class="btn-main" onclick="window.addAdmin()">新增</button><div id="admin-list-cards"></div></div>
+    <div id="admin-users" class="section">
+        <h2 style="color:var(--gold);">打手帳號與資金管理</h2>
+        <div class="card" style="padding:20px;">
+            <input type="text" id="u-id" placeholder="打手帳號 (自訂編號)">
+            <input type="password" id="u-pass" placeholder="初始密碼">
+            <input type="number" id="u-money" placeholder="初始資金">
+            <button class="btn-gold" onclick="window.addPlayerUser()">新增打手</button>
+        </div>
+        <div id="player-user-list"></div>
+    </div>
+</div>
+
+<div id="login-modal" class="custom-modal">
+    <div class="modal-box">
+        <h3 id="login-title" style="color:var(--gold);">身份驗證</h3>
+        <input type="text" id="login-id" placeholder="帳號">
+        <input type="password" id="login-pass" placeholder="口令">
+        <button class="btn-gold" id="login-submit-btn">進入系統</button>
+        <button class="role-btn" style="border:none; margin-top:10px;" onclick="window.closeLogin()">關閉</button>
+    </div>
 </div>
 
 <div id="ticket-modal" class="custom-modal">
     <div class="modal-box">
-        <h3>🧾 搶單成功憑證</h3>
-        <p id="t-buyer"></p>
-        <div style="background:#fff3cd; padding:15px; border-radius:10px;">
-            <p style="margin:0; font-size:0.9rem; font-weight:bold; color:#856404;">🔑 專屬隨機碼：</p>
-            <div class="random-code-display" id="t-random"></div>
-            <button style="background:var(--club-black); color:var(--club-gold); border:none; padding:10px; width:100%; border-radius:5px;" onclick="window.copyCode()">點此複製</button>
-        </div>
-        <button class="btn-main" id="ticket-close-btn" style="margin-top:15px;" onclick="location.reload()" disabled>我已截圖 (複製後解鎖)</button>
+        <h3 style="color:var(--gold);">搶單成功</h3>
+        <p>這是您的專屬核銷隨機碼</p>
+        <div class="random-code" id="t-random"></div>
+        <p style="font-size:0.8rem; color:#888;">請務必截圖。憑此碼與管理員結算。</p>
+        <button class="btn-gold" onclick="location.reload()">確認並退出</button>
     </div>
 </div>
-
-<div id="pay-modal" class="custom-modal">
-    <div class="modal-box">
-        <h3>💳 藍新金流支付</h3>
-        <p>即將前往藍新安全支付頁面...</p>
-        <button class="btn-main" onclick="window.customAlert('提示','金流模組已就緒，請填寫藍新商戶代碼')">前往付款</button>
-    </div>
-</div>
-
-<div id="login-modal" class="custom-modal"><div class="modal-box"><h3>管理員驗證</h3><input type="password" id="admin-pass-input" placeholder="代碼"><div style="display:flex; gap:10px;"><button class="btn-main" onclick="window.processAdminLogin()">登入</button><button class="btn-main" style="background:#888;" onclick="window.closeLogin()">取消</button></div></div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove, update, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCWNgvwCRygbBz3X7qHwKwWpBxaqTezM2w",
@@ -141,169 +181,202 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    let products = [], orders = [], admins = [], currentSelectMission = null;
+    let products = [], orders = [], playerUsers = [], admins = [];
+    let currentPlayer = null;
 
-    const cls = document.getElementById('b-class'); for(let i=1; i<=20; i++) cls.add(new Option(i + " 班", i));
+    // UI 控制
+    window.showSection = (id) => { document.querySelectorAll('.section').forEach(s => s.style.display='none'); document.getElementById(id).style.display='block'; };
+    window.openAdminLogin = () => {
+        document.getElementById('login-modal').style.display='flex';
+        document.getElementById('login-submit-btn').onclick = window.processAdminLogin;
+    };
+    window.openPlayerLogin = () => {
+        document.getElementById('login-modal').style.display='flex';
+        document.getElementById('login-submit-btn').onclick = window.processPlayerLogin;
+    };
+    window.closeLogin = () => document.getElementById('login-modal').style.display='none';
 
-    // [路由與進入]
-    window.enterBuyer = () => { document.getElementById('role-select').style.display='none'; document.getElementById('app-container').style.display='block'; window.showSection('buyer-page'); };
-    window.enterBuyerLookup = () => { document.getElementById('role-select').style.display='none'; document.getElementById('app-container').style.display='block'; window.showSection('buyer-lookup'); };
-    window.showSection = (id) => { document.querySelectorAll('.section').forEach(s => s.style.display = 'none'); document.getElementById(id).style.display = 'block'; };
-    window.openAdminLogin = () => document.getElementById('login-modal').style.display = 'flex';
-    window.closeLogin = () => document.getElementById('login-modal').style.display = 'none';
-
+    // 登入邏輯
     window.processAdminLogin = () => {
-        const p = document.getElementById('admin-pass-input').value;
-        if (p === "@J108" || admins.some(a => a.pass === p)) { 
-            window.closeLogin(); document.getElementById('role-select').style.display = 'none';
-            document.getElementById('app-container').style.display = 'block';
-            document.getElementById('admin-nav').style.display = 'flex'; 
-            initAdminFunctions(); window.showSection('admin-orders');
-        } else { alert("口令錯誤"); }
+        const pass = document.getElementById('login-pass').value;
+        if(pass === "@J108") {
+            window.closeLogin();
+            document.getElementById('role-select').style.display='none';
+            document.getElementById('app-container').style.display='block';
+            document.getElementById('admin-nav').style.display='flex';
+            window.showSection('admin-orders');
+            initAdminFunctions();
+        } else { alert('控制代碼錯誤'); }
     };
 
-    function initAdminFunctions() {
-        window.addProduct = () => {
-            const n = document.getElementById('p-name').value, p = document.getElementById('p-price').value, s = document.getElementById('p-stock').value, i = document.getElementById('p-img').value;
-            if(n && p && s) push(ref(db, 'products'), { name: n, price: parseInt(p), stock: parseInt(s), img: i || 'https://via.placeholder.com/400x200?text=No+Image' });
-        };
-        window.updateP = (id) => {
-            const name = document.getElementById(`edit-n-${id}`).value, price = parseInt(document.getElementById(`edit-p-${id}`).value), stock = parseInt(document.getElementById(`edit-s-${id}`).value), img = document.getElementById(`edit-i-${id}`).value;
-            update(ref(db, `products/${id}`), { name, price, stock, img }).then(() => alert("已更新"));
-        };
-        window.upSt = (id, k, v) => {
-            update(ref(db, `orders/${id}`), { [k]: v });
-        };
-        window.togglePaid = (id, cur) => update(ref(db, `orders/${id}`), { isPaid: !cur });
-        window.delD = (path, id) => { if(confirm("確定刪除？")) remove(ref(db, `${path}/${id}`)); };
+    window.processPlayerLogin = () => {
+        const id = document.getElementById('login-id').value;
+        const pass = document.getElementById('login-pass').value;
+        const user = playerUsers.find(u => u.id === id && u.pass === pass);
+        if(user) {
+            currentPlayer = user;
+            window.closeLogin();
+            document.getElementById('role-select').style.display='none';
+            document.getElementById('app-container').style.display='block';
+            window.showSection('player-dashboard');
+            updatePlayerUI();
+        } else { alert('帳號或密碼錯誤'); }
+    };
+
+    function updatePlayerUI() {
+        if(!currentPlayer) return;
+        document.getElementById('player-info-display').innerHTML = `
+            <span class="balance-label">打手 ID: ${currentPlayer.id}</span>
+            <span style="color:var(--gold); margin-left:10px;">餘額: $${currentPlayer.money}</span>
+        `;
     }
 
+    // Firebase 監聽
     onValue(ref(db, 'products'), s => {
         products = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
-        renderBuyerMissions(); 
-        renderAdminProducts();
+        renderMissions();
+        if(document.getElementById('admin-nav').style.display==='flex') renderAdminProducts();
     });
     onValue(ref(db, 'orders'), s => {
         orders = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [];
-        renderAdminOrders(); renderBuyerLookup();
+        if(document.getElementById('admin-nav').style.display==='flex') renderAdminOrders();
     });
-    onValue(ref(db, 'admins'), s => admins = s.val() ? Object.entries(s.val()).map(([id, v]) => ({ id, ...v })) : [] );
+    onValue(ref(db, 'playerUsers'), s => {
+        playerUsers = s.val() ? Object.entries(s.val()).map(([dbKey, v]) => ({ dbKey, ...v })) : [];
+        if(currentPlayer) {
+            currentPlayer = playerUsers.find(u => u.id === currentPlayer.id);
+            updatePlayerUI();
+        }
+        if(document.getElementById('admin-nav').style.display==='flex') renderPlayerUserList();
+    });
 
-    // [買家搶單牆渲染]
-    function renderBuyerMissions() {
-        document.getElementById('buyer-mission-list').innerHTML = products.map((p, i) => `
+    // 打手：渲染任務牆
+    function renderMissions() {
+        document.getElementById('mission-list').innerHTML = products.map(p => `
             <div class="card">
-                <img src="${p.img}" class="card-img">
-                <div class="card-body">
-                    <span class="tag-status ${p.stock > 0 ? 'status-open' : 'status-taken'}">${p.stock > 0 ? '開放搶單' : '已滿額'}</span>
-                    <div class="card-title">${p.name}</div>
-                    <p style="color:var(--danger); font-weight:bold; font-size:1.2rem;">價值：$${p.price}</p>
-                    <p>剩餘名額：${p.stock}</p>
-                    <button class="btn-main" ${p.stock <= 0 ? 'disabled' : ''} onclick="window.startOrder('${p.id}')">立即搶單 💎</button>
+                <img src="${p.img}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400'">
+                <div class="card-content">
+                    <div style="font-size:1.2rem; font-weight:bold;">${p.name}</div>
+                    <div class="price-tag">$${p.price}</div>
+                    <div style="font-size:0.8rem; color:#888; margin-bottom:15px;">剩餘名額: ${p.stock}</div>
+                    <button class="btn-gold" ${p.stock <= 0 ? 'disabled' : ''} onclick="window.takeMission('${p.id}')">
+                        ${p.stock <= 0 ? '任務已滿' : '立即搶單 🗝️'}
+                    </button>
                 </div>
             </div>
         `).join('');
     }
 
-    window.startOrder = (id) => {
-        currentSelectMission = products.find(p => p.id === id);
-        document.getElementById('selected-mission-preview').innerHTML = `
-            <div class="card-body">
-                <div class="card-title">${currentSelectMission.name}</div>
-                <p>應付總額：$${currentSelectMission.price}</p>
-            </div>
-        `;
-        window.showSection('order-form-page');
-    };
+    window.takeMission = async (pId) => {
+        const p = products.find(x => x.id === pId);
+        if(currentPlayer.money < p.price) return alert('資金不足，請聯繫管理員儲值');
+        
+        if(confirm(`確認消耗 $${p.price} 承接「${p.name}」任務嗎？`)) {
+            const rand = "@" + Math.floor(100000 + Math.random() * 900000);
+            const newMoney = currentPlayer.money - p.price;
+            
+            // 更新打手資金
+            await update(ref(db, `playerUsers/${currentPlayer.dbKey}`), { money: newMoney });
+            
+            // 更新庫存
+            await update(ref(db, `products/${pId}`), { stock: p.stock - 1 });
 
-    window.finalizeOrder = () => {
-        const name = document.getElementById('b-name').value;
-        const grade = document.getElementById('b-grade').value;
-        if(!name || !grade || !currentSelectMission) return alert("資料未填完");
-
-        const rand = "@" + Math.floor(100000 + Math.random() * 900000);
-        const updates = {};
-        updates[`products/${currentSelectMission.id}/stock`] = currentSelectMission.stock - 1;
-
-        update(ref(db), updates).then(() => {
-            const info = `${grade} ${document.getElementById('b-class').value}班`;
-            push(ref(db, 'orders'), { 
-                ts: new Date().toLocaleString(), buyer: name, info, 
-                detail: currentSelectMission.name, total: currentSelectMission.price, 
-                isPaid: false, shipStatus: "搶單成功", randCode: rand 
-            }).then(() => {
-                document.getElementById('t-buyer').innerText = name; 
-                document.getElementById('t-random').innerText = rand;
-                document.getElementById('ticket-modal').style.display = 'flex';
+            // 建立訂單
+            await push(ref(db, 'orders'), {
+                player: currentPlayer.id,
+                mission: p.name,
+                price: p.price,
+                code: rand,
+                status: '進行中',
+                ts: new Date().toLocaleString()
             });
-        });
+
+            document.getElementById('t-random').innerText = rand;
+            document.getElementById('ticket-modal').style.display = 'flex';
+        }
     };
 
-    window.copyCode = () => {
-        const txt = document.getElementById('t-random').innerText;
-        navigator.clipboard.writeText(txt).then(() => {
-            document.getElementById('ticket-close-btn').disabled = false;
-            document.getElementById('ticket-close-btn').innerText = "✅ 複製成功，前往金流頁面";
-            alert("代碼已複製！");
-        });
-    };
-
-    window.renderBuyerLookup = () => {
-        const code = document.getElementById('lookup-code').value.trim();
-        const container = document.getElementById('lookup-cards');
-        if(!code) { container.innerHTML = ""; return; }
-        container.innerHTML = orders.filter(o => o.randCode === code).map(o => `
-            <div class="card" style="padding:15px; border:2px solid var(--club-gold);">
-                <div style="float:right; font-weight:bold; color:var(--club-gold);">${o.isPaid ? '✅金流已入帳' : '❌待付款'}</div>
-                <h3 style="color:var(--club-black);">${o.detail}</h3>
-                <p>搶單狀態：<b>${o.shipStatus}</b></p>
-                <p>金額：$${o.total}</p>
-                ${!o.isPaid ? `<button class="btn-main" style="background:var(--club-gold); color:black;" onclick="document.getElementById('pay-modal').style.display='flex'">使用藍新金流支付</button>` : ''}
+    window.renderPlayerLookup = () => {
+        const code = document.getElementById('lookup-code').value;
+        const result = orders.filter(o => o.player === currentPlayer.id && o.code === code);
+        document.getElementById('lookup-results').innerHTML = result.map(o => `
+            <div class="card" style="padding:15px;">
+                <div style="color:var(--gold); font-weight:bold;">${o.mission}</div>
+                <div>狀態: ${o.status}</div>
+                <div style="font-size:0.8rem; color:#666;">日期: ${o.ts}</div>
+                <button class="role-btn" style="width:100%; margin-top:10px;">🔗 藍新金流接口 (預留)</button>
             </div>
-        `).join('') || (code.length >= 7 ? "<p>查無搶單記錄</p>" : "");
+        `).join('') || '<p>查無此代碼紀錄</p>';
     };
 
-    // --- 管理員渲染 ---
+    // 管理員功能
+    function initAdminFunctions() {
+        window.addPlayerUser = () => {
+            const id = document.getElementById('u-id').value;
+            const pass = document.getElementById('u-pass').value;
+            const money = parseInt(document.getElementById('u-money').value);
+            if(id && pass) push(ref(db, 'playerUsers'), { id, pass, money });
+        };
+
+        window.addProduct = () => {
+            const name = document.getElementById('p-name').value;
+            const img = document.getElementById('p-img').value;
+            const price = parseInt(document.getElementById('p-price').value);
+            const stock = parseInt(document.getElementById('p-stock').value);
+            if(name && price) push(ref(db, 'products'), { name, img, price, stock });
+        };
+        
+        window.delItem = (path, key) => { if(confirm('確定刪除？')) remove(ref(db, `${path}/${key}`)); };
+    }
+
     function renderAdminOrders() {
         document.getElementById('admin-order-cards').innerHTML = orders.slice().reverse().map(o => `
-            <div class="card" style="padding:10px;">
-                <div style="float:right; text-align:right;">
-                    <button onclick="window.togglePaid('${o.id}', ${o.isPaid})">${o.isPaid?'✅入帳':'❌未付'}</button><br>
-                    <small style="color:red;">${o.randCode}</small>
+            <div class="card" style="padding:15px;">
+                <div style="display:flex; justify-content:space-between;">
+                    <b>打手: ${o.player}</b>
+                    <span style="color:var(--gold);">${o.code}</span>
                 </div>
-                <b>${o.buyer} (${o.info})</b>
-                <p>${o.detail} - $${o.total}</p>
-                <select onchange="window.upSt('${o.id}', 'shipStatus', this.value)" style="width:auto; padding:5px;">
-                    <option value="搶單成功" ${o.shipStatus=='搶單成功'?'selected':''}>搶單成功</option>
-                    <option value="任務進行中" ${o.shipStatus=='任務進行中'?'selected':''}>進行中</option>
-                    <option value="完成結案" ${o.shipStatus=='完成結案'?'selected':''}>完成</option>
-                    <option value="撤單" ${o.shipStatus=='撤單'?'selected':''}>撤單</option>
+                <div>任務: ${o.mission}</div>
+                <div style="font-size:0.8rem; color:#888;">${o.ts}</div>
+                <select onchange="window.updateOrderStatus('${o.id}', this.value)" style="margin-top:10px;">
+                    <option ${o.status==='進行中'?'selected':''}>進行中</option>
+                    <option ${o.status==='已結案'?'selected':''}>已結案</option>
+                    <option ${o.status==='異常'?'selected':''}>異常</option>
                 </select>
-                <button onclick="window.delD('orders', '${o.id}')" style="background:red; color:white; border:none; padding:5px; border-radius:4px;">刪</button>
             </div>
         `).join('');
     }
+    window.updateOrderStatus = (id, val) => update(ref(db, `orders/${id}`), { status: val });
 
     function renderAdminProducts() {
         document.getElementById('admin-product-cards').innerHTML = products.map(p => `
-            <div class="card" style="padding:10px;">
-                <input type="text" id="edit-n-${p.id}" value="${p.name}">
-                <input type="text" id="edit-i-${p.id}" value="${p.img}" placeholder="圖片網址">
-                <div style="display:flex; gap:5px;"><input type="number" id="edit-p-${p.id}" value="${p.price}" style="flex:1;"><input type="number" id="edit-s-${p.id}" value="${p.stock}" style="flex:1;"></div>
-                <button onclick="window.updateP('${p.id}')" style="background:var(--success); color:white; border:none; padding:10px; border-radius:8px; width:48%;">儲存</button>
-                <button onclick="window.delD('products', '${p.id}')" style="background:red; color:white; border:none; padding:10px; border-radius:8px; width:48%;">刪除</button>
+            <div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center;">
+                <div>${p.name} ($${p.price})</div>
+                <button onclick="window.delItem('products', '${p.id}')" style="color:red; background:none; border:none;">刪除</button>
             </div>
         `).join('');
     }
 
-    function renderAdminList() {
-        document.getElementById('admin-list-cards').innerHTML = admins.map((a, i) => `
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
-                <span>👤 管理員密碼</span>
-                <button onclick="window.delD('admins', '${a.id}')" style="background:#888; color:white; border:none; padding:5px; border-radius:4px;">移除</button>
+    function renderPlayerUserList() {
+        document.getElementById('player-user-list').innerHTML = playerUsers.map(u => `
+            <div class="card" style="padding:15px;">
+                <div style="display:flex; justify-content:space-between;">
+                    <b>ID: ${u.id}</b>
+                    <span>餘額: $${u.money}</span>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="role-btn" style="padding:5px; flex:1;" onclick="window.adjustMoney('${u.dbKey}', 100)">+100</button>
+                    <button class="role-btn" style="padding:5px; flex:1;" onclick="window.adjustMoney('${u.dbKey}', -100)">-100</button>
+                    <button onclick="window.delItem('playerUsers', '${u.dbKey}')" style="color:red; background:none; border:none;">刪除</button>
+                </div>
             </div>
         `).join('');
     }
+    window.adjustMoney = (dbKey, val) => {
+        const u = playerUsers.find(x => x.dbKey === dbKey);
+        update(ref(db, `playerUsers/${dbKey}`), { money: u.money + val });
+    };
+
 </script>
 </body>
 </html>
